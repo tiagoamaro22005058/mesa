@@ -4,12 +4,208 @@
   "@appTitle": {
     "description": "The application name, shown in the task switcher and app bars."
   },
-  "homePlaceholderTitle": "Scaffold ready",
-  "@homePlaceholderTitle": {
-    "description": "Heading on the M0 placeholder home screen."
+
+  "commonSave": "Save",
+  "@commonSave": {
+    "description": "Label of the button that commits an edited form."
   },
-  "homePlaceholderBody": "Riverpod, go_router and the theme are wired up. Session logging arrives in M4.",
+  "commonCancel": "Cancel",
+  "@commonCancel": {
+    "description": "Label of the button that dismisses a form without saving."
+  },
+  "commonRetry": "Try again",
+  "@commonRetry": {
+    "description": "Label of the button that re-runs a failed action."
+  },
+
+  "authSignInTitle": "Sign in",
+  "@authSignInTitle": {
+    "description": "Title of the sign-in screen and its submit button."
+  },
+  "authSignUpTitle": "Create account",
+  "@authSignUpTitle": {
+    "description": "Title of the sign-up screen and its submit button."
+  },
+  "authResetTitle": "Reset password",
+  "@authResetTitle": {
+    "description": "Title of the password reset screen and its submit button."
+  },
+  "authEmailLabel": "Email",
+  "@authEmailLabel": {
+    "description": "Label of the email address field on the auth forms."
+  },
+  "authPasswordLabel": "Password",
+  "@authPasswordLabel": {
+    "description": "Label of the password field on the auth forms."
+  },
+  "authConfirmPasswordLabel": "Confirm password",
+  "@authConfirmPasswordLabel": {
+    "description": "Label of the second password field on the sign-up form."
+  },
+  "authDisplayNameLabel": "Name",
+  "@authDisplayNameLabel": {
+    "description": "Label of the display name field on the sign-up form."
+  },
+  "authGoogleButton": "Continue with Google",
+  "@authGoogleButton": {
+    "description": "Label of the button that starts the Google Sign-In flow."
+  },
+  "authNoAccountPrompt": "No account? Create one",
+  "@authNoAccountPrompt": {
+    "description": "Link from the sign-in screen to the sign-up screen."
+  },
+  "authHaveAccountPrompt": "Already have an account? Sign in",
+  "@authHaveAccountPrompt": {
+    "description": "Link from the sign-up screen back to the sign-in screen."
+  },
+  "authForgotPasswordPrompt": "Forgot your password?",
+  "@authForgotPasswordPrompt": {
+    "description": "Link from the sign-in screen to the password reset screen."
+  },
+  "authResetInstructions": "Enter your email address and we will send you a link to set a new password.",
+  "@authResetInstructions": {
+    "description": "Explanatory text above the password reset form."
+  },
+  "authResetSent": "If that address has an account, a reset link is on its way.",
+  "@authResetSent": {
+    "description": "Confirmation after requesting a password reset. Deliberately non-committal so the screen does not reveal whether an account exists."
+  },
+
+  "authErrorInvalidCredentials": "That email and password do not match an account.",
+  "@authErrorInvalidCredentials": {
+    "description": "Shown when sign-in is rejected. Covers both a wrong password and an unknown address, which Firebase reports identically."
+  },
+  "authErrorEmailInUse": "That email address already has an account.",
+  "@authErrorEmailInUse": {
+    "description": "Shown when sign-up targets an existing account."
+  },
+  "authErrorWeakPassword": "Pick a longer password — at least six characters.",
+  "@authErrorWeakPassword": {
+    "description": "Shown when the chosen password is too weak."
+  },
+  "authErrorInvalidEmail": "That does not look like an email address.",
+  "@authErrorInvalidEmail": {
+    "description": "Shown when the server rejects the email format."
+  },
+  "authErrorUserNotFound": "No account exists for that email address.",
+  "@authErrorUserNotFound": {
+    "description": "Shown when the account cannot be found."
+  },
+  "authErrorUserDisabled": "That account has been disabled.",
+  "@authErrorUserDisabled": {
+    "description": "Shown when the account exists but is disabled."
+  },
+  "authErrorNetwork": "No connection. Signing in is the one thing that needs it.",
+  "@authErrorNetwork": {
+    "description": "Shown when auth fails for lack of connectivity. NFR1 exempts sign-in and sign-up from working offline."
+  },
+  "authErrorTooManyRequests": "Too many attempts. Wait a moment and try again.",
+  "@authErrorTooManyRequests": {
+    "description": "Shown when the provider rate-limits sign-in attempts."
+  },
+  "authErrorUnknown": "Something went wrong. Try again.",
+  "@authErrorUnknown": {
+    "description": "Fallback for an unmapped authentication error."
+  },
+
+  "validationEmailRequired": "Enter your email address",
+  "@validationEmailRequired": {
+    "description": "Field validation message for an empty email field."
+  },
+  "validationEmailInvalid": "Enter a valid email address",
+  "@validationEmailInvalid": {
+    "description": "Field validation message for a malformed email address."
+  },
+  "validationPasswordRequired": "Enter a password",
+  "@validationPasswordRequired": {
+    "description": "Field validation message for an empty password field."
+  },
+  "validationPasswordTooShort": "Use at least six characters",
+  "@validationPasswordTooShort": {
+    "description": "Field validation message for a password below the minimum length."
+  },
+  "validationPasswordsDoNotMatch": "Passwords do not match",
+  "@validationPasswordsDoNotMatch": {
+    "description": "Field validation message when the confirmation does not match the password."
+  },
+  "validationNameRequired": "Enter your name",
+  "@validationNameRequired": {
+    "description": "Field validation message for an empty display name field."
+  },
+  "validationNumberRequired": "Enter a number",
+  "@validationNumberRequired": {
+    "description": "Field validation message for an empty or non-numeric field."
+  },
+  "validationNumberPositive": "Enter a number above zero",
+  "@validationNumberPositive": {
+    "description": "Field validation message for a number that must be greater than zero."
+  },
+
+  "homeGreeting": "Signed in as {name}",
+  "@homeGreeting": {
+    "description": "Line on the home screen naming the signed-in account.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tiago"
+      }
+    }
+  },
+  "homePlaceholderBody": "Auth and your profile are wired up. The exercise catalogue arrives in M2.",
   "@homePlaceholderBody": {
-    "description": "Body text on the M0 placeholder home screen explaining what is and is not built yet."
+    "description": "Body text on the home screen explaining what is and is not built yet."
+  },
+  "homeProfileAction": "Profile",
+  "@homeProfileAction": {
+    "description": "Label of the button opening the profile screen."
+  },
+  "homeSignOutAction": "Sign out",
+  "@homeSignOutAction": {
+    "description": "Label of the button that signs the current account out."
+  },
+
+  "profileTitle": "Profile",
+  "@profileTitle": {
+    "description": "Title of the profile settings screen."
+  },
+  "profileDisplayNameLabel": "Display name",
+  "@profileDisplayNameLabel": {
+    "description": "Label of the display name field on the profile screen."
+  },
+  "profileUnitsLabel": "Units",
+  "@profileUnitsLabel": {
+    "description": "Label of the unit system selector on the profile screen."
+  },
+  "profileUnitsKg": "Kilograms",
+  "@profileUnitsKg": {
+    "description": "Option label for the metric unit system."
+  },
+  "profileUnitsLb": "Pounds",
+  "@profileUnitsLb": {
+    "description": "Option label for the imperial unit system."
+  },
+  "profileBarWeightLabel": "Bar weight",
+  "@profileBarWeightLabel": {
+    "description": "Label of the barbell weight field on the profile screen."
+  },
+  "profileDumbbellIncrementLabel": "Dumbbell increment",
+  "@profileDumbbellIncrementLabel": {
+    "description": "Label of the smallest dumbbell step field on the profile screen."
+  },
+  "profilePlateInventoryLabel": "Plate inventory",
+  "@profilePlateInventoryLabel": {
+    "description": "Label of the plate inventory selector on the profile screen."
+  },
+  "profilePlateInventoryHint": "The plates your gym actually has. Load suggestions round to what you can build.",
+  "@profilePlateInventoryHint": {
+    "description": "Explanatory text under the plate inventory selector."
+  },
+  "profileSaved": "Profile saved",
+  "@profileSaved": {
+    "description": "Confirmation shown after the profile is saved."
+  },
+  "profileLoading": "Loading your profile…",
+  "@profileLoading": {
+    "description": "Shown while the profile document is being read for the first time."
   }
 }

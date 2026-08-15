@@ -10,24 +10,27 @@ part of 'router.dart';
 // ignore_for_file: type=lint, type=warning
 /// The application router.
 ///
-/// M1 attaches auth state here so unauthenticated users only reach the auth
-/// screens (F1).
+/// Auth state gates every route through [redirect]. The router itself is built
+/// once and refreshed through a [Listenable] rather than rebuilt on each auth
+/// change — recreating the `GoRouter` would throw away navigation state.
 
 @ProviderFor(router)
 final routerProvider = RouterProvider._();
 
 /// The application router.
 ///
-/// M1 attaches auth state here so unauthenticated users only reach the auth
-/// screens (F1).
+/// Auth state gates every route through [redirect]. The router itself is built
+/// once and refreshed through a [Listenable] rather than rebuilt on each auth
+/// change — recreating the `GoRouter` would throw away navigation state.
 
 final class RouterProvider
     extends $FunctionalProvider<GoRouter, GoRouter, GoRouter>
     with $Provider<GoRouter> {
   /// The application router.
   ///
-  /// M1 attaches auth state here so unauthenticated users only reach the auth
-  /// screens (F1).
+  /// Auth state gates every route through [redirect]. The router itself is built
+  /// once and refreshed through a [Listenable] rather than rebuilt on each auth
+  /// change — recreating the `GoRouter` would throw away navigation state.
   RouterProvider._()
     : super(
         from: null,
@@ -61,4 +64,4 @@ final class RouterProvider
   }
 }
 
-String _$routerHash() => r'd8a69191a51df8e2b0349f2034f43115f9d4f102';
+String _$routerHash() => r'206395d28793d5c1e6f45c86fd7083cd7788984c';

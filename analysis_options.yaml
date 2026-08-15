@@ -13,6 +13,8 @@ analyzer:
   exclude:
     - build/**
     - android/**
+    # The rules tests are a Node package, not Dart (test/firestore_rules/).
+    - test/firestore_rules/**
     - ios/**
     - web/**
     - windows/**

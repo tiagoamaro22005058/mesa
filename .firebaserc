@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "mesa-dev-4970c",
+    "dev": "mesa-dev-4970c",
+    "prod": "mesa-prod-c0ac6"
+  }
+}

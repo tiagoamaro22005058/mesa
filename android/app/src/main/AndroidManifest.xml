@@ -1,4 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Firebase Auth and Firestore need this in every build type. The Flutter
+         template only declares it in the debug and profile manifests, which is
+         enough for the tooling but leaves a release APK with no network at all
+         (M1 is the first milestone that talks to a server). -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="@string/app_name"
         android:name="${applicationName}"

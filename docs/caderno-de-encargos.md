@@ -51,6 +51,20 @@ ambiguous. The flavour is read back at runtime from `appFlavor` to choose the
 Firebase project, and an unrecognised flavour throws rather than defaulting —
 a silent fallback would let a dev build write into the prod Firestore.
 
+**Google Sign-In prerequisite (found in M1).** Google Sign-In needs the signing
+certificate's SHA-1 registered against the Firebase Android app, per flavour,
+after which `google-services.json` must be re-downloaded. Without it the app
+holds only a web OAuth client (`client_type: 3`) and Credential Manager will
+never issue an ID token. The Dart side needs no client id — the Gradle plugin
+turns the web client into a per-flavour string resource, so it stays
+flavour-correct automatically. This is a console action, not a code change.
+
+**Code generation (M1).** The last stable `freezed` (3.2.5) pins `analyzer <11`
+and cannot coexist with `riverpod_generator`'s `analyzer ^13`. Since this
+document mandates both freezed entities (§9) and the code-gen flavour of
+Riverpod, `freezed: ^4.0.0-dev.3` is the only combination that satisfies it on
+Dart 3.13. Revisit when freezed 4.0.0 ships stable.
+
 ### 2.1 Assumptions to confirm
 
 These are written into the spec but are **assumptions, not requirements**. Flag them if wrong.
@@ -158,6 +172,10 @@ service cloud.firestore {
 ```
 
 Deliverables: `firestore.rules`, `firestore.indexes.json`, and **rules unit tests** using the Firebase emulator (`@firebase/rules-unit-testing`) proving that user A cannot read user B's sessions.
+
+**Correction (M1).** The trailing `match /{document=**} { allow read, write: if false; }` cannot deny anything. Firestore evaluates rules as a logical OR across every matching path, so a later `if false` never revokes an earlier `allow`, and access is denied by default regardless. It is kept as a statement of intent — it is not a backstop, and nothing should be written on the assumption that it is one. The emulator tests are what actually prove the denials hold.
+
+**Scope note (M1).** These rules authenticate; they do not validate. A signed-in user may write any field of any type into their own documents. That is a deliberate trade for a single-user app — the rules defend an account against *other* accounts, not against its own client — and would need revisiting if the app ever gained untrusted clients.
 
 **Security note:** `google-services.json` is not a secret and its exposure is not the threat model — security rests entirely on the rules above. Add **Firebase App Check** (Play Integrity provider) before any public distribution to stop the API keys being driven from outside the app.
 
@@ -273,6 +291,8 @@ Each feature lists acceptance criteria. A milestone is done when its criteria pa
 - Sign-out clears local Firestore cache.
 
 **Acceptance:** app restarts land on the last screen with the session intact; a second account sees none of the first account's data.
+
+**Reading of "the last screen" (M1).** M1 has two authenticated screens, so there is nothing meaningful to restore: it proves the *session* survives a restart and the app lands authenticated, with no sign-in flash on cold start. Genuine last-route restoration is revisited in M3/M4, once a route tree exists that makes it worth persisting.
 
 ### F2 — Exercise catalogue
 
@@ -461,6 +481,7 @@ Build in this order. Each milestone ends with a working app, a passing test suit
 - **Integration:** full session logged against the Firebase emulator, including an offline/online transition.
 - **Rules:** emulator-based tests for every collection path.
 - CI runs `flutter analyze`, `flutter test`, and builds the APK on every push.
+- The rules tests are a Node package (`test/firestore_rules/`), so `flutter test` cannot run them. They get their own CI job — §4.3 makes them a deliverable, and a deliverable that only ever runs by hand stops being one (added in M1).
 
 ---
 
@@ -468,9 +489,15 @@ Build in this order. Each milestone ends with a working app, a passing test suit
 
 1. Confirm assumptions **A2–A4** in §2.1 — in particular whether the Base → Deload → Intensification → Peak ordering is deliberate (kept as written).
 2. Should a program schedule to fixed weekdays, or simply advance to "next day in sequence" whenever a session starts? (Spec currently assumes the latter — more forgiving of missed days.)
-3. Is this app ever leaving your own device? If it reaches the Play Store, even on an internal-testing track, the Gym visual media licence question in §5.1 becomes real. Answering "no" now keeps `mediaEnabled` permanently true and saves nothing; answering "maybe" means building the flag properly in M2.
+3. Is this app ever leaving your own device? If it reaches the Play Store, even on an internal-testing track, the Gym visual media licence question in §5.1 becomes real. Answering "no" now keeps `mediaEnabled` permanently true and saves nothing; answering "maybe" means building the flag properly in M2. **Needed before M2 starts.**
 4. Is Portuguese UI needed at launch, or is English-with-ARB-ready sufficient?
-5. Bodyweight is needed for the ~36 `bodyweightPlusLoad` exercises (§5.6). Track it as a single profile value, or as a dated series so historical e1RMs stay accurate?
+5. Bodyweight is needed for the ~36 `bodyweightPlusLoad` exercises (§5.6). Track it as a single profile value, or as a dated series so historical e1RMs stay accurate? **Sharpened in M1:** §4's user document has no `bodyweight` field at all, so §4 and §5.6 currently contradict each other. M1 deliberately left it out rather than build ahead — Firestore is schemaless, so adding it later is a one-field change, not a migration. **Needed before M5.**
+
+### 12.1 Answered
+
+- **Rules tests in CI** (M1) — yes, as a separate job. See §11.
+- **Plate inventory editing** (M1) — a chip toggle over the standard kilogram set (25, 20, 15, 10, 5, 2.5, 1.25, 0.5). §4's default inventory is that set without the 0.5. Free-form plate weights would need this vocabulary widened first.
+- **"Last screen" on restart** (M1) — session-only for now. See §6 F1.
 
 ---
 

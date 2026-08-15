@@ -120,6 +120,14 @@ app.*.symbols
 .idea/
 *.iml
 
+# Firestore rules tests (Node toolchain, see test/firestore_rules/)
+test/firestore_rules/node_modules/
+
+# Firebase emulator downloads and logs
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
 # Claude Code
 .claude/settings.local.json
 

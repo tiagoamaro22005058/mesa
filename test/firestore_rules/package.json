@@ -1,0 +1,14 @@
+{
+  "name": "mesa-firestore-rules-tests",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Emulator tests for firestore.rules (§4.3). Run with: firebase emulators:exec --only firestore \"npm test\" from the repository root.",
+  "scripts": {
+    "test": "node --test rules.test.mjs"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^4.0.1",
+    "firebase": "^11.0.0"
+  }
+}

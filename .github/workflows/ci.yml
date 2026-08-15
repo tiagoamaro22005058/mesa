@@ -45,3 +45,36 @@ jobs:
           name: app-dev-debug-apk
           path: build/app/outputs/flutter-apk/app-dev-debug.apk
           if-no-files-found: error
+
+  # §4.3 requires rules tests proving cross-user access is impossible. They are
+  # a Node package rather than Dart, so `flutter test` cannot run them and they
+  # get their own job. Java is here for the Firestore emulator, not for Gradle.
+  firestore-rules:
+    name: Firestore security rules
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: test/firestore_rules/package-lock.json
+
+      - name: Install rules test dependencies
+        run: npm ci --prefix test/firestore_rules
+
+      - name: Install the Firebase CLI
+        run: npm install --global firebase-tools
+
+      - name: Run rules tests
+        run: >
+          firebase emulators:exec --only firestore --project mesa-rules-test
+          "npm --prefix test/firestore_rules test"

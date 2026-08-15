@@ -1,0 +1,37 @@
+rules_version = '2';
+
+// Security rules for mesa (§4.3).
+//
+// Everything user-owned lives under `users/{uid}`, which is what makes this
+// tractable: one ownership check covers the profile and every subcollection
+// beneath it. Nothing is readable or writable outside that subtree.
+//
+// These rules authenticate, they do not validate. A signed-in user may write
+// any shape into their own documents — the rules defend an account against
+// *other* accounts, not against its own client. §4.3 does not ask for field
+// validation and a single-user app does not need it; if the app ever gains
+// untrusted clients, that changes.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+
+      // gyms, programs (and their days), sessions (and their setLogs),
+      // exerciseStats and customExercises — §4's whole tree.
+      match /{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+
+    // Documents the truth: nothing lives outside `users/{uid}`.
+    //
+    // Note this cannot *revoke* anything. Firestore ORs its rules, so a later
+    // `if false` never overrides an earlier `allow`, and access is denied by
+    // default regardless. It is a statement of intent, not a backstop — the
+    // rules tests are what actually prove the denials hold.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

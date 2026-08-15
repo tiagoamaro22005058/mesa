@@ -100,17 +100,293 @@ abstract class AppLocalizations {
   /// **'Mesa'**
   String get appTitle;
 
-  /// Heading on the M0 placeholder home screen.
+  /// Label of the button that commits an edited form.
   ///
   /// In en, this message translates to:
-  /// **'Scaffold ready'**
-  String get homePlaceholderTitle;
+  /// **'Save'**
+  String get commonSave;
 
-  /// Body text on the M0 placeholder home screen explaining what is and is not built yet.
+  /// Label of the button that dismisses a form without saving.
   ///
   /// In en, this message translates to:
-  /// **'Riverpod, go_router and the theme are wired up. Session logging arrives in M4.'**
+  /// **'Cancel'**
+  String get commonCancel;
+
+  /// Label of the button that re-runs a failed action.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get commonRetry;
+
+  /// Title of the sign-in screen and its submit button.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get authSignInTitle;
+
+  /// Title of the sign-up screen and its submit button.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get authSignUpTitle;
+
+  /// Title of the password reset screen and its submit button.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get authResetTitle;
+
+  /// Label of the email address field on the auth forms.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get authEmailLabel;
+
+  /// Label of the password field on the auth forms.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get authPasswordLabel;
+
+  /// Label of the second password field on the sign-up form.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get authConfirmPasswordLabel;
+
+  /// Label of the display name field on the sign-up form.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get authDisplayNameLabel;
+
+  /// Label of the button that starts the Google Sign-In flow.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get authGoogleButton;
+
+  /// Link from the sign-in screen to the sign-up screen.
+  ///
+  /// In en, this message translates to:
+  /// **'No account? Create one'**
+  String get authNoAccountPrompt;
+
+  /// Link from the sign-up screen back to the sign-in screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Sign in'**
+  String get authHaveAccountPrompt;
+
+  /// Link from the sign-in screen to the password reset screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot your password?'**
+  String get authForgotPasswordPrompt;
+
+  /// Explanatory text above the password reset form.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email address and we will send you a link to set a new password.'**
+  String get authResetInstructions;
+
+  /// Confirmation after requesting a password reset. Deliberately non-committal so the screen does not reveal whether an account exists.
+  ///
+  /// In en, this message translates to:
+  /// **'If that address has an account, a reset link is on its way.'**
+  String get authResetSent;
+
+  /// Shown when sign-in is rejected. Covers both a wrong password and an unknown address, which Firebase reports identically.
+  ///
+  /// In en, this message translates to:
+  /// **'That email and password do not match an account.'**
+  String get authErrorInvalidCredentials;
+
+  /// Shown when sign-up targets an existing account.
+  ///
+  /// In en, this message translates to:
+  /// **'That email address already has an account.'**
+  String get authErrorEmailInUse;
+
+  /// Shown when the chosen password is too weak.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a longer password — at least six characters.'**
+  String get authErrorWeakPassword;
+
+  /// Shown when the server rejects the email format.
+  ///
+  /// In en, this message translates to:
+  /// **'That does not look like an email address.'**
+  String get authErrorInvalidEmail;
+
+  /// Shown when the account cannot be found.
+  ///
+  /// In en, this message translates to:
+  /// **'No account exists for that email address.'**
+  String get authErrorUserNotFound;
+
+  /// Shown when the account exists but is disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'That account has been disabled.'**
+  String get authErrorUserDisabled;
+
+  /// Shown when auth fails for lack of connectivity. NFR1 exempts sign-in and sign-up from working offline.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. Signing in is the one thing that needs it.'**
+  String get authErrorNetwork;
+
+  /// Shown when the provider rate-limits sign-in attempts.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Wait a moment and try again.'**
+  String get authErrorTooManyRequests;
+
+  /// Fallback for an unmapped authentication error.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Try again.'**
+  String get authErrorUnknown;
+
+  /// Field validation message for an empty email field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email address'**
+  String get validationEmailRequired;
+
+  /// Field validation message for a malformed email address.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address'**
+  String get validationEmailInvalid;
+
+  /// Field validation message for an empty password field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a password'**
+  String get validationPasswordRequired;
+
+  /// Field validation message for a password below the minimum length.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least six characters'**
+  String get validationPasswordTooShort;
+
+  /// Field validation message when the confirmation does not match the password.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get validationPasswordsDoNotMatch;
+
+  /// Field validation message for an empty display name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name'**
+  String get validationNameRequired;
+
+  /// Field validation message for an empty or non-numeric field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number'**
+  String get validationNumberRequired;
+
+  /// Field validation message for a number that must be greater than zero.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number above zero'**
+  String get validationNumberPositive;
+
+  /// Line on the home screen naming the signed-in account.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in as {name}'**
+  String homeGreeting(String name);
+
+  /// Body text on the home screen explaining what is and is not built yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Auth and your profile are wired up. The exercise catalogue arrives in M2.'**
   String get homePlaceholderBody;
+
+  /// Label of the button opening the profile screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get homeProfileAction;
+
+  /// Label of the button that signs the current account out.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get homeSignOutAction;
+
+  /// Title of the profile settings screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileTitle;
+
+  /// Label of the display name field on the profile screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name'**
+  String get profileDisplayNameLabel;
+
+  /// Label of the unit system selector on the profile screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Units'**
+  String get profileUnitsLabel;
+
+  /// Option label for the metric unit system.
+  ///
+  /// In en, this message translates to:
+  /// **'Kilograms'**
+  String get profileUnitsKg;
+
+  /// Option label for the imperial unit system.
+  ///
+  /// In en, this message translates to:
+  /// **'Pounds'**
+  String get profileUnitsLb;
+
+  /// Label of the barbell weight field on the profile screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar weight'**
+  String get profileBarWeightLabel;
+
+  /// Label of the smallest dumbbell step field on the profile screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Dumbbell increment'**
+  String get profileDumbbellIncrementLabel;
+
+  /// Label of the plate inventory selector on the profile screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Plate inventory'**
+  String get profilePlateInventoryLabel;
+
+  /// Explanatory text under the plate inventory selector.
+  ///
+  /// In en, this message translates to:
+  /// **'The plates your gym actually has. Load suggestions round to what you can build.'**
+  String get profilePlateInventoryHint;
+
+  /// Confirmation shown after the profile is saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile saved'**
+  String get profileSaved;
+
+  /// Shown while the profile document is being read for the first time.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading your profile…'**
+  String get profileLoading;
 }
 
 class _AppLocalizationsDelegate
