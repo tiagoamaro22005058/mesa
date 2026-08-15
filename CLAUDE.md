@@ -35,6 +35,7 @@ A personal, single-user Android app for designing, running and tracking gym trai
 - `features/` never touch Firestore directly — they go through repository interfaces.
 - `domain/models/` holds plain immutable entities with no Firebase types — hand-written `copyWith`/`==`/`hashCode`, no freezed. See §2 for why, and for the M3 trigger to revisit.
 - `domain/progression/` is a pure algorithm module (§7): no Firebase, no Flutter, unit-testable in isolation.
+- §9.1 holds two conventions that live in `core/` and must not be re-invented per feature: the failure vocabulary (`core/failures/`, no raw provider exceptions above `data/`) and numeric input (`parseWeight`/`formatWeight`, comma or dot).
 
 ```
 lib/

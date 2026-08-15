@@ -458,7 +458,7 @@ suggested   = roundToIncrement(rawLoad, increment(exercise.equipment))
 | NFR4 | **Ergonomics.** Primary actions reachable one-handed in the bottom third of the screen. Tap targets ≥ 48 dp. Screen-on lock during an active session. |
 | NFR5 | **Data safety.** No destructive action without undo or confirmation. JSON export available at any time. |
 | NFR6 | **Accessibility.** Dark theme default, WCAG AA contrast, semantic labels on interactive widgets, respects system text scaling. |
-| NFR7 | **Localisation.** Strings externalised from day one (`flutter_localizations` + ARB). Ship English; Portuguese ready to add without refactoring. Note that the dataset ships instructions in 10 languages but **not Portuguese** — exercise instructions stay English regardless of UI language. |
+| NFR7 | **Localisation.** Strings externalised from day one (`flutter_localizations` + ARB). Ship English; Portuguese ready to add without refactoring. Numeric input accepts a comma or a dot as the decimal separator, through the one parser in `core/` (§9.1) — a Portuguese keyboard offers a comma. Note that the dataset ships instructions in 10 languages but **not Portuguese** — exercise instructions stay English regardless of UI language. |
 
 ---
 
@@ -488,6 +488,47 @@ firestore.indexes.json
 ```
 
 Rules: `domain/` imports nothing from `data/` or Flutter. Repository interfaces live in `domain/`, implementations in `data/`. Features never touch Firestore directly.
+
+### 9.1 Shared conventions — one implementation, in `core/`
+
+Both of these emerged in M1 and are written down because they are the kind of
+thing every later milestone re-invents per screen if it is not told not to. A
+feature that needs either of them **uses the existing one and extends it if it
+falls short** — it does not add a second.
+
+**Failure vocabulary.** Errors reaching the UI are a closed set of app-level
+kinds in `core/failures/`, never raw provider exceptions. Each backend
+exception is translated once, at the `data/` boundary, and each kind maps to
+exactly one localised string.
+
+- M1 established the pattern with `AuthFailure` / `AuthFailureKind`
+  (`core/failures/auth_failure.dart`), translated in
+  `data/firestore/auth_failure_mapper.dart`.
+- Later milestones add sibling types for their own domains — a Firestore
+  failure, a catalogue-load failure — following the same shape rather than
+  inventing a different error style. Reuse `AuthFailureKind` where the meaning
+  genuinely matches; do not stretch it where it does not.
+- Two properties matter and must survive. A kind may be **silent**: the UI shows
+  nothing for it, which is how backing out of the Google account picker stays a
+  decision rather than an error. And an `unknown` kind **keeps the original
+  provider code**, so an unmapped failure is still diagnosable from a bug report
+  instead of vanishing into a generic message.
+- Nothing renders an exception's `toString()` on screen.
+
+**Numeric input.** Every numeric field in the app is a weight, an increment or
+a rep count typed one-handed, and most of them arrive between M3 and M6. They
+all parse through `parseWeight` in `core/formatters/`, which accepts a comma or
+a dot as the decimal separator.
+
+- The Portuguese keyboard, and most non-English ones, offer a comma where
+  Dart's parser wants a dot. Rejecting `17,5` reads as the app being broken
+  rather than fussy (NFR7).
+- `parseWeight` returns `null` rather than throwing, so it drops straight into a
+  form validator; `Validators.positiveNumber` is built on it.
+- `formatWeight` is its inverse and the only way weights are rendered — `20`,
+  not `20.0`. The two round-trip, and a test holds them to it.
+- Thousands separators are deliberately unsupported: `1.234` is genuinely
+  ambiguous between locales and no weight in this app needs four digits.
 
 ---
 

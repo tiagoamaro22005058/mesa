@@ -1,3 +1,4 @@
+import 'package:mesa/core/formatters/weight_format.dart';
 import 'package:mesa/l10n/app_localizations.dart';
 
 /// Form validators shared by the auth and profile forms.
@@ -43,7 +44,7 @@ abstract final class Validators {
 
   /// A weight or increment. Must parse and be above zero.
   static String? positiveNumber(AppLocalizations l10n, String? value) {
-    final parsed = double.tryParse((value ?? '').trim().replaceAll(',', '.'));
+    final parsed = parseWeight(value);
     if (parsed == null) return l10n.validationNumberRequired;
     if (parsed <= 0) return l10n.validationNumberPositive;
     return null;

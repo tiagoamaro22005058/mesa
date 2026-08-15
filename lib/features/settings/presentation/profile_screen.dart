@@ -84,8 +84,9 @@ class _ProfileFormState extends ConsumerState<_ProfileForm> {
     super.dispose();
   }
 
-  static double _parse(String value) =>
-      double.parse(value.trim().replaceAll(',', '.'));
+  /// Non-null because [Validators.positiveNumber] has already rejected
+  /// anything unparseable — `_save` runs only after the form validates.
+  static double _parse(String value) => parseWeight(value)!;
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
