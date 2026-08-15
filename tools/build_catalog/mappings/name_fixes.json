@@ -1,0 +1,23 @@
+{
+  "_note": [
+    "Verbatim corrections to upstream exercise names, keyed by upstream id.",
+    "",
+    "Four records carry `в°` where `°` belongs — a mis-decoded degree sign in the",
+    "upstream data, not in ours. Record 1463 spells the same name correctly, so",
+    "this is an upstream inconsistency rather than an encoding choice to respect.",
+    "Left alone it reaches the screen as 'sled 45в° leg press'.",
+    "",
+    "A table rather than a regex, for the same reason the muscle vocabulary is a",
+    "table: a rule broad enough to catch this would be broad enough to silently",
+    "rewrite a name nobody checked. The build fails on an id that does not exist,",
+    "and on a fix whose `from` no longer matches — so an upstream correction makes",
+    "this file fail loudly instead of quietly rewriting the wrong thing."
+  ],
+
+  "map": {
+    "0738": { "from": "sled 45в° calf press",          "to": "sled 45° calf press" },
+    "0739": { "from": "sled 45в° leg press",           "to": "sled 45° leg press" },
+    "1464": { "from": "sled 45в° leg press (back pov)", "to": "sled 45° leg press (back pov)" },
+    "0740": { "from": "sled 45в° leg wide press",      "to": "sled 45° leg wide press" }
+  }
+}

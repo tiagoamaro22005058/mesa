@@ -21,6 +21,7 @@ abstract final class UserProfileConverter {
           _doubleList(data['plateInventory']) ?? UserProfile.defaultPlateInventory,
       dumbbellIncrement:
           _double(data['dumbbellIncrement']) ?? UserProfile.defaultDumbbellIncrement,
+      favouriteExerciseIds: _stringList(data['favouriteExerciseIds']) ?? const [],
       activeProgramId: _string(data['activeProgramId']),
       activeGymId: _string(data['activeGymId']),
       createdAt: _dateTime(data['createdAt']) ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
@@ -35,6 +36,7 @@ abstract final class UserProfileConverter {
       'barWeight': profile.barWeight,
       'plateInventory': profile.plateInventory,
       'dumbbellIncrement': profile.dumbbellIncrement,
+      'favouriteExerciseIds': profile.favouriteExerciseIds,
       'activeProgramId': profile.activeProgramId,
       'activeGymId': profile.activeGymId,
       // Client clocks, not FieldValue.serverTimestamp(). A server timestamp
@@ -53,6 +55,16 @@ abstract final class UserProfileConverter {
   /// Firestore hands back `int` for whole numbers written as doubles, so every
   /// numeric read has to widen rather than cast.
   static double? _double(Object? value) => value is num ? value.toDouble() : null;
+
+  /// Drops anything that is not a string rather than rejecting the whole list:
+  /// one malformed favourite should cost that favourite, not all of them.
+  static List<String>? _stringList(Object? value) {
+    if (value is! List) return null;
+    return [
+      for (final item in value)
+        if (item is String && item.isNotEmpty) item,
+    ];
+  }
 
   static List<double>? _doubleList(Object? value) {
     if (value is! List) return null;

@@ -50,6 +50,12 @@ class HomeScreen extends ConsumerWidget {
               const Spacer(),
               // NFR4: the actions sit in the bottom third, within thumb reach.
               FilledButton.icon(
+                onPressed: () => context.goNamed(Routes.catalog),
+                icon: const Icon(Icons.fitness_center),
+                label: Text(l10n.catalogHomeAction),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
                 onPressed: () => context.goNamed(Routes.profile),
                 icon: const Icon(Icons.person_outline),
                 label: Text(l10n.homeProfileAction),

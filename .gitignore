@@ -128,6 +128,9 @@ test/firestore_rules/node_modules/
 firebase-debug.log
 firestore-debug.log
 
+# Catalogue ingestion failure report — regenerated on every failed build (§5.4)
+tools/build_catalog/unmapped.json
+
 # Claude Code
 .claude/settings.local.json
 

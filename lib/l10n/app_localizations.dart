@@ -387,6 +387,570 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading your profile…'**
   String get profileLoading;
+
+  /// Title of the exercise catalogue screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercises'**
+  String get catalogTitle;
+
+  /// Placeholder in the catalogue search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Search exercises'**
+  String get catalogSearchHint;
+
+  /// Accessibility label of the button that empties the search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get catalogSearchClear;
+
+  /// How many exercises the current search and filters match.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No exercises} =1{1 exercise} other{{count} exercises}}'**
+  String catalogResultCount(int count);
+
+  /// Heading shown when a search returns no exercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches'**
+  String get catalogEmptyTitle;
+
+  /// Body text shown when a search returns no exercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a shorter search, or clear the filters.'**
+  String get catalogEmptyBody;
+
+  /// Label of the button that removes every active catalogue filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get catalogClearFilters;
+
+  /// Title of the catalogue filter sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get catalogFiltersTitle;
+
+  /// Label of the button that opens the catalogue filter sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get catalogFiltersAction;
+
+  /// Heading of the body part filter group.
+  ///
+  /// In en, this message translates to:
+  /// **'Body part'**
+  String get catalogFilterBodyPart;
+
+  /// Heading of the primary muscle filter group.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary muscle'**
+  String get catalogFilterMuscle;
+
+  /// Heading of the equipment filter group.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment'**
+  String get catalogFilterEquipment;
+
+  /// Toggle that narrows the catalogue to starred exercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Favourites only'**
+  String get catalogFilterFavourites;
+
+  /// Label of the button that closes the filter sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Show results'**
+  String get catalogFilterDone;
+
+  /// Badge marking an exercise the user created rather than a catalogue one.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get catalogCustomBadge;
+
+  /// Label of the button that creates a custom exercise.
+  ///
+  /// In en, this message translates to:
+  /// **'New exercise'**
+  String get catalogNewExercise;
+
+  /// Shown when the bundled catalogue asset is missing or unreadable. A build fault, not something the user can fix.
+  ///
+  /// In en, this message translates to:
+  /// **'The exercise catalogue could not be loaded.'**
+  String get catalogLoadFailed;
+
+  /// Accessibility label of the unfilled star button.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favourites'**
+  String get catalogFavouriteAdd;
+
+  /// Accessibility label of the filled star button.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favourites'**
+  String get catalogFavouriteRemove;
+
+  /// Label of the home screen button that opens the exercise catalogue.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse exercises'**
+  String get catalogHomeAction;
+
+  /// Heading above an exercise's instruction steps.
+  ///
+  /// In en, this message translates to:
+  /// **'Instructions'**
+  String get exerciseInstructionsHeading;
+
+  /// Shown on the detail screen when an exercise has no steps.
+  ///
+  /// In en, this message translates to:
+  /// **'No instructions for this exercise.'**
+  String get exerciseNoInstructions;
+
+  /// Heading above the muscle breakdown on the detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Muscles'**
+  String get exerciseMusclesHeading;
+
+  /// Label of the primary muscle on the detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary'**
+  String get exercisePrimaryMuscle;
+
+  /// Label of the synergist muscle on the detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Synergist'**
+  String get exerciseSynergist;
+
+  /// Label of the secondary muscles on the detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Also works'**
+  String get exerciseSecondaryMuscles;
+
+  /// Heading above the equipment and load model on the detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment'**
+  String get exerciseEquipmentHeading;
+
+  /// Placeholder shown when exercise media cannot be fetched. Never an error — the rest of the screen works without it (NFR1).
+  ///
+  /// In en, this message translates to:
+  /// **'Image unavailable offline'**
+  String get exerciseMediaUnavailable;
+
+  /// Shown when a link points at an exercise that has been deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'That exercise no longer exists.'**
+  String get exerciseNotFound;
+
+  /// Label of the button that edits a custom exercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get exerciseEdit;
+
+  /// Label of the button that deletes a custom exercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get exerciseDelete;
+
+  /// Title of the confirmation dialog before deleting a custom exercise (NFR5).
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this exercise?'**
+  String get exerciseDeleteTitle;
+
+  /// Body of the delete confirmation dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will be removed. This cannot be undone.'**
+  String exerciseDeleteBody(String name);
+
+  /// Confirmation shown after a custom exercise is deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise deleted'**
+  String get exerciseDeleted;
+
+  /// Title of the form that creates a custom exercise.
+  ///
+  /// In en, this message translates to:
+  /// **'New exercise'**
+  String get customExerciseNewTitle;
+
+  /// Title of the form that edits a custom exercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit exercise'**
+  String get customExerciseEditTitle;
+
+  /// Label of the name field on the custom exercise form.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get customExerciseNameLabel;
+
+  /// Label of the instructions field on the custom exercise form.
+  ///
+  /// In en, this message translates to:
+  /// **'Instructions'**
+  String get customExerciseStepsLabel;
+
+  /// Helper text under the instructions field on the custom exercise form.
+  ///
+  /// In en, this message translates to:
+  /// **'One step per line. Optional.'**
+  String get customExerciseStepsHint;
+
+  /// Label above the load model, which is derived from the chosen equipment rather than picked.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged as'**
+  String get customExerciseLoadModelLabel;
+
+  /// Confirmation shown after a custom exercise is created or edited.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise saved'**
+  String get customExerciseSaved;
+
+  /// Display name of the externalLoad load model (§5.6).
+  ///
+  /// In en, this message translates to:
+  /// **'Weight you enter'**
+  String get loadModelExternal;
+
+  /// Display name of the bodyweight load model (§5.6).
+  ///
+  /// In en, this message translates to:
+  /// **'Bodyweight, tracked by reps'**
+  String get loadModelBodyweight;
+
+  /// Display name of the bodyweightPlusLoad load model (§5.6).
+  ///
+  /// In en, this message translates to:
+  /// **'Bodyweight plus added weight'**
+  String get loadModelBodyweightPlusLoad;
+
+  /// Display name of the assisted load model, whose load moves inverse to progress (§5.6).
+  ///
+  /// In en, this message translates to:
+  /// **'Assistance, less is better'**
+  String get loadModelAssisted;
+
+  /// Body part filter label.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get bodyPartBack;
+
+  /// Body part filter label.
+  ///
+  /// In en, this message translates to:
+  /// **'Chest'**
+  String get bodyPartChest;
+
+  /// Body part filter label.
+  ///
+  /// In en, this message translates to:
+  /// **'Lower arms'**
+  String get bodyPartLowerArms;
+
+  /// Body part filter label.
+  ///
+  /// In en, this message translates to:
+  /// **'Lower legs'**
+  String get bodyPartLowerLegs;
+
+  /// Body part filter label.
+  ///
+  /// In en, this message translates to:
+  /// **'Neck'**
+  String get bodyPartNeck;
+
+  /// Body part filter label.
+  ///
+  /// In en, this message translates to:
+  /// **'Shoulders'**
+  String get bodyPartShoulders;
+
+  /// Body part filter label.
+  ///
+  /// In en, this message translates to:
+  /// **'Upper arms'**
+  String get bodyPartUpperArms;
+
+  /// Body part filter label.
+  ///
+  /// In en, this message translates to:
+  /// **'Upper legs'**
+  String get bodyPartUpperLegs;
+
+  /// Body part filter label.
+  ///
+  /// In en, this message translates to:
+  /// **'Waist'**
+  String get bodyPartWaist;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Chest'**
+  String get muscleChest;
+
+  /// Muscle name. The dataset does not distinguish the three heads (§5.4).
+  ///
+  /// In en, this message translates to:
+  /// **'Delts'**
+  String get muscleDelts;
+
+  /// Muscle name. Only reachable through the hand-maintained delt head override.
+  ///
+  /// In en, this message translates to:
+  /// **'Front delts'**
+  String get muscleFrontDelts;
+
+  /// Muscle name. Only reachable through the hand-maintained delt head override.
+  ///
+  /// In en, this message translates to:
+  /// **'Side delts'**
+  String get muscleSideDelts;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Rear delts'**
+  String get muscleRearDelts;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Lats'**
+  String get muscleLats;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Upper back'**
+  String get muscleUpperBack;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Traps'**
+  String get muscleTraps;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Biceps'**
+  String get muscleBiceps;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Triceps'**
+  String get muscleTriceps;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Forearms'**
+  String get muscleForearms;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Quads'**
+  String get muscleQuads;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Hamstrings'**
+  String get muscleHamstrings;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Glutes'**
+  String get muscleGlutes;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Calves'**
+  String get muscleCalves;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Abs'**
+  String get muscleAbs;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Obliques'**
+  String get muscleObliques;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Lower back'**
+  String get muscleLowerBack;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Hip flexors'**
+  String get muscleHipFlexors;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Adductors'**
+  String get muscleAdductors;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Abductors'**
+  String get muscleAbductors;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Core'**
+  String get muscleCore;
+
+  /// Muscle name.
+  ///
+  /// In en, this message translates to:
+  /// **'Neck'**
+  String get muscleNeck;
+
+  /// Muscle name for the long tail with no home in the enum (§5.4). Deliberately reads as unclassified rather than naming a muscle it is not.
+  ///
+  /// In en, this message translates to:
+  /// **'Unclassified'**
+  String get muscleOther;
+
+  /// Equipment name.
+  ///
+  /// In en, this message translates to:
+  /// **'Barbell'**
+  String get equipmentBarbell;
+
+  /// Equipment name.
+  ///
+  /// In en, this message translates to:
+  /// **'EZ barbell'**
+  String get equipmentEzBarbell;
+
+  /// Equipment name.
+  ///
+  /// In en, this message translates to:
+  /// **'Olympic barbell'**
+  String get equipmentOlympicBarbell;
+
+  /// Equipment name.
+  ///
+  /// In en, this message translates to:
+  /// **'Trap bar'**
+  String get equipmentTrapBar;
+
+  /// Equipment name.
+  ///
+  /// In en, this message translates to:
+  /// **'Dumbbell'**
+  String get equipmentDumbbell;
+
+  /// Equipment name.
+  ///
+  /// In en, this message translates to:
+  /// **'Kettlebell'**
+  String get equipmentKettlebell;
+
+  /// Equipment name.
+  ///
+  /// In en, this message translates to:
+  /// **'Cable'**
+  String get equipmentCable;
+
+  /// Equipment name.
+  ///
+  /// In en, this message translates to:
+  /// **'Machine'**
+  String get equipmentLeverageMachine;
+
+  /// Equipment name.
+  ///
+  /// In en, this message translates to:
+  /// **'Smith machine'**
+  String get equipmentSmithMachine;
+
+  /// Equipment name.
+  ///
+  /// In en, this message translates to:
+  /// **'Sled machine'**
+  String get equipmentSledMachine;
+
+  /// Equipment name.
+  ///
+  /// In en, this message translates to:
+  /// **'Band'**
+  String get equipmentBand;
+
+  /// Equipment name.
+  ///
+  /// In en, this message translates to:
+  /// **'Medicine ball'**
+  String get equipmentMedicineBall;
+
+  /// Equipment name.
+  ///
+  /// In en, this message translates to:
+  /// **'Bodyweight'**
+  String get equipmentBodyWeight;
+
+  /// Equipment name.
+  ///
+  /// In en, this message translates to:
+  /// **'Weighted'**
+  String get equipmentWeighted;
+
+  /// Equipment name.
+  ///
+  /// In en, this message translates to:
+  /// **'Assisted'**
+  String get equipmentAssisted;
+
+  /// Equipment name for the long tail: balls, rollers, ropes (§5.4).
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get equipmentOther;
 }
 
 class _AppLocalizationsDelegate

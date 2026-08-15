@@ -6,6 +6,9 @@ import 'package:mesa/features/auth/presentation/sign_in_screen.dart';
 import 'package:mesa/features/auth/presentation/sign_up_screen.dart';
 import 'package:mesa/features/auth/presentation/splash_screen.dart';
 import 'package:mesa/features/auth/providers/auth_providers.dart';
+import 'package:mesa/features/catalog/presentation/catalog_screen.dart';
+import 'package:mesa/features/catalog/presentation/custom_exercise_form_screen.dart';
+import 'package:mesa/features/catalog/presentation/exercise_detail_screen.dart';
 import 'package:mesa/features/home/presentation/home_screen.dart';
 import 'package:mesa/features/settings/presentation/profile_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -16,6 +19,10 @@ part 'router.g.dart';
 abstract final class Routes {
   static const home = 'home';
   static const profile = 'profile';
+  static const catalog = 'catalog';
+  static const exerciseDetail = 'exerciseDetail';
+  static const customExerciseNew = 'customExerciseNew';
+  static const customExerciseEdit = 'customExerciseEdit';
   static const signIn = 'signIn';
   static const signUp = 'signUp';
   static const passwordReset = 'passwordReset';
@@ -26,6 +33,7 @@ abstract final class Routes {
 abstract final class Paths {
   static const home = '/';
   static const profile = '/profile';
+  static const catalog = '/catalog';
   static const signIn = '/sign-in';
   static const signUp = '/sign-up';
   static const passwordReset = '/reset-password';
@@ -80,6 +88,34 @@ GoRouter router(Ref ref) {
             path: 'profile',
             name: Routes.profile,
             builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: 'catalog',
+            name: Routes.catalog,
+            builder: (context, state) => const CatalogScreen(),
+            routes: [
+              // Before ':id', so `/catalog/new` is not read as an exercise
+              // whose id is "new".
+              GoRoute(
+                path: 'new',
+                name: Routes.customExerciseNew,
+                builder: (context, state) => const CustomExerciseFormScreen(),
+              ),
+              GoRoute(
+                path: ':id',
+                name: Routes.exerciseDetail,
+                builder: (context, state) =>
+                    ExerciseDetailScreen(exerciseId: state.pathParameters['id']!),
+                routes: [
+                  GoRoute(
+                    path: 'edit',
+                    name: Routes.customExerciseEdit,
+                    builder: (context, state) =>
+                        CustomExerciseFormScreen(exerciseId: state.pathParameters['id']!),
+                  ),
+                ],
+              ),
+            ],
           ),
         ],
       ),

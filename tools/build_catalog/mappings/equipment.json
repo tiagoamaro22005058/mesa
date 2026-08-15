@@ -1,0 +1,91 @@
+{
+  "_note": [
+    "The 28 upstream equipment strings, mapped onto three things at once (§5.4, §5.6):",
+    "",
+    "  equipment — the fine-grained enum on the internal Exercise model (§5.5).",
+    "  loadModel — how the exercise is loaded, which the progression maths in §7",
+    "    depends on entirely and which the dataset says nothing about.",
+    "  gymTag   — §4's Gym.equipment vocabulary, for M7's substitution.",
+    "",
+    "§5.4 asks for the strings to collapse onto the Gym vocabulary, but they cannot",
+    "collapse only that far: §5.6 needs `weighted` and `assisted` apart from",
+    "everything else, and §7.2's increment needs a kettlebell told apart from a",
+    "barbell. So the model keeps the fine-grained enum and carries the gym tag",
+    "alongside it. One table, both answers.",
+    "",
+    "`gymTag: null` means the requirement is not expressible in §4's seven tags — a",
+    "stability ball is neither a machine nor bodyweight. Substitution will never flag",
+    "these as missing at a gym, which is the honest outcome: the app has no way to",
+    "record whether a gym has one. Widening §4's vocabulary is the fix if that ever",
+    "matters; it does not in v1.",
+    "",
+    "The long tail is kept rather than excluded (owner's decision, M2), so the count",
+    "stays at §5.2's stated 1,295. Stretches and core work on a ball, roller or rope",
+    "carry no external load and are logged as bodyweight; a sledge hammer and a tire",
+    "flip do have a load the user can type, so they stay externalLoad."
+  ],
+
+  "equipmentValues": [
+    "barbell",
+    "ez_barbell",
+    "olympic_barbell",
+    "trap_bar",
+    "dumbbell",
+    "kettlebell",
+    "cable",
+    "leverage_machine",
+    "smith_machine",
+    "sled_machine",
+    "band",
+    "medicine_ball",
+    "body_weight",
+    "weighted",
+    "assisted",
+    "other"
+  ],
+
+  "loadModelValues": ["externalLoad", "bodyweight", "bodyweightPlusLoad", "assisted"],
+
+  "gymTagValues": ["barbell", "dumbbell", "cable", "machine", "smith", "bands", "bodyweight"],
+
+  "map": {
+    "barbell":       { "equipment": "barbell",          "loadModel": "externalLoad",        "gymTag": "barbell" },
+    "ez barbell":    { "equipment": "ez_barbell",       "loadModel": "externalLoad",        "gymTag": "barbell" },
+    "olympic barbell": { "equipment": "olympic_barbell", "loadModel": "externalLoad",       "gymTag": "barbell" },
+    "trap bar":      { "equipment": "trap_bar",         "loadModel": "externalLoad",        "gymTag": "barbell" },
+    "dumbbell":      { "equipment": "dumbbell",         "loadModel": "externalLoad",        "gymTag": "dumbbell" },
+    "kettlebell":    { "equipment": "kettlebell",       "loadModel": "externalLoad",        "gymTag": "dumbbell" },
+    "cable":         { "equipment": "cable",            "loadModel": "externalLoad",        "gymTag": "cable" },
+    "leverage machine": { "equipment": "leverage_machine", "loadModel": "externalLoad",     "gymTag": "machine" },
+    "smith machine": { "equipment": "smith_machine",    "loadModel": "externalLoad",        "gymTag": "smith" },
+    "sled machine":  { "equipment": "sled_machine",     "loadModel": "externalLoad",        "gymTag": "machine" },
+    "band":          { "equipment": "band",             "loadModel": "externalLoad",        "gymTag": "bands" },
+    "resistance band": { "equipment": "band",           "loadModel": "externalLoad",        "gymTag": "bands" },
+    "medicine ball": { "equipment": "medicine_ball",    "loadModel": "externalLoad",        "gymTag": null },
+    "body weight":   { "equipment": "body_weight",      "loadModel": "bodyweight",          "gymTag": "bodyweight" },
+    "weighted":      { "equipment": "weighted",         "loadModel": "bodyweightPlusLoad",  "gymTag": "bodyweight" },
+    "assisted":      { "equipment": "assisted",         "loadModel": "assisted",            "gymTag": "machine" },
+
+    "stability ball": { "equipment": "other",           "loadModel": "bodyweight",          "gymTag": null },
+    "bosu ball":     { "equipment": "other",            "loadModel": "bodyweight",          "gymTag": null },
+    "roller":        { "equipment": "other",            "loadModel": "bodyweight",          "gymTag": null },
+    "wheel roller":  { "equipment": "other",            "loadModel": "bodyweight",          "gymTag": null },
+    "rope":          { "equipment": "other",            "loadModel": "bodyweight",          "gymTag": null },
+    "hammer":        { "equipment": "other",            "loadModel": "externalLoad",        "gymTag": null },
+    "tire":          { "equipment": "other",            "loadModel": "externalLoad",        "gymTag": null },
+    "upper body ergometer": { "equipment": "other",     "loadModel": "bodyweight",          "gymTag": null },
+    "skierg machine": { "equipment": "other",           "loadModel": "bodyweight",          "gymTag": null },
+
+    "stationary bike":   { "equipment": "other", "loadModel": "bodyweight", "gymTag": null },
+    "elliptical machine": { "equipment": "other", "loadModel": "bodyweight", "gymTag": null },
+    "stepmill machine":  { "equipment": "other", "loadModel": "bodyweight", "gymTag": null }
+  },
+
+  "_judgement_calls": {
+    "resistance band": "Collapsed onto `band` — 7 records against band's 54, and nothing in the app treats the two differently.",
+    "kettlebell → dumbbell": "§4 has no kettlebell tag. Nearest free-weight tag; a documented approximation for M7, not a claim they are interchangeable.",
+    "assisted → machine": "The assisted dip/pull-up rig is a machine. The `assisted` load model, not the tag, is what carries the inversion in §5.6.",
+    "weighted → bodyweight": "A weighted chin-up needs a belt and a plate, but the gym requirement is the bar. bodyweightPlusLoad is where the bodyweight dependency lives.",
+    "last three entries": "stationary bike, elliptical machine and stepmill machine appear only on cardio records, which are excluded before this table is consulted. They are here so the table stays a complete census of the 28 upstream strings, and so the build does not break if the cardio filter ever changes."
+  }
+}

@@ -168,4 +168,297 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileLoading => 'Loading your profile…';
+
+  @override
+  String get catalogTitle => 'Exercises';
+
+  @override
+  String get catalogSearchHint => 'Search exercises';
+
+  @override
+  String get catalogSearchClear => 'Clear search';
+
+  @override
+  String catalogResultCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count exercises',
+      one: '1 exercise',
+      zero: 'No exercises',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get catalogEmptyTitle => 'Nothing matches';
+
+  @override
+  String get catalogEmptyBody => 'Try a shorter search, or clear the filters.';
+
+  @override
+  String get catalogClearFilters => 'Clear filters';
+
+  @override
+  String get catalogFiltersTitle => 'Filters';
+
+  @override
+  String get catalogFiltersAction => 'Filter';
+
+  @override
+  String get catalogFilterBodyPart => 'Body part';
+
+  @override
+  String get catalogFilterMuscle => 'Primary muscle';
+
+  @override
+  String get catalogFilterEquipment => 'Equipment';
+
+  @override
+  String get catalogFilterFavourites => 'Favourites only';
+
+  @override
+  String get catalogFilterDone => 'Show results';
+
+  @override
+  String get catalogCustomBadge => 'Custom';
+
+  @override
+  String get catalogNewExercise => 'New exercise';
+
+  @override
+  String get catalogLoadFailed => 'The exercise catalogue could not be loaded.';
+
+  @override
+  String get catalogFavouriteAdd => 'Add to favourites';
+
+  @override
+  String get catalogFavouriteRemove => 'Remove from favourites';
+
+  @override
+  String get catalogHomeAction => 'Browse exercises';
+
+  @override
+  String get exerciseInstructionsHeading => 'Instructions';
+
+  @override
+  String get exerciseNoInstructions => 'No instructions for this exercise.';
+
+  @override
+  String get exerciseMusclesHeading => 'Muscles';
+
+  @override
+  String get exercisePrimaryMuscle => 'Primary';
+
+  @override
+  String get exerciseSynergist => 'Synergist';
+
+  @override
+  String get exerciseSecondaryMuscles => 'Also works';
+
+  @override
+  String get exerciseEquipmentHeading => 'Equipment';
+
+  @override
+  String get exerciseMediaUnavailable => 'Image unavailable offline';
+
+  @override
+  String get exerciseNotFound => 'That exercise no longer exists.';
+
+  @override
+  String get exerciseEdit => 'Edit';
+
+  @override
+  String get exerciseDelete => 'Delete';
+
+  @override
+  String get exerciseDeleteTitle => 'Delete this exercise?';
+
+  @override
+  String exerciseDeleteBody(String name) {
+    return '$name will be removed. This cannot be undone.';
+  }
+
+  @override
+  String get exerciseDeleted => 'Exercise deleted';
+
+  @override
+  String get customExerciseNewTitle => 'New exercise';
+
+  @override
+  String get customExerciseEditTitle => 'Edit exercise';
+
+  @override
+  String get customExerciseNameLabel => 'Name';
+
+  @override
+  String get customExerciseStepsLabel => 'Instructions';
+
+  @override
+  String get customExerciseStepsHint => 'One step per line. Optional.';
+
+  @override
+  String get customExerciseLoadModelLabel => 'Logged as';
+
+  @override
+  String get customExerciseSaved => 'Exercise saved';
+
+  @override
+  String get loadModelExternal => 'Weight you enter';
+
+  @override
+  String get loadModelBodyweight => 'Bodyweight, tracked by reps';
+
+  @override
+  String get loadModelBodyweightPlusLoad => 'Bodyweight plus added weight';
+
+  @override
+  String get loadModelAssisted => 'Assistance, less is better';
+
+  @override
+  String get bodyPartBack => 'Back';
+
+  @override
+  String get bodyPartChest => 'Chest';
+
+  @override
+  String get bodyPartLowerArms => 'Lower arms';
+
+  @override
+  String get bodyPartLowerLegs => 'Lower legs';
+
+  @override
+  String get bodyPartNeck => 'Neck';
+
+  @override
+  String get bodyPartShoulders => 'Shoulders';
+
+  @override
+  String get bodyPartUpperArms => 'Upper arms';
+
+  @override
+  String get bodyPartUpperLegs => 'Upper legs';
+
+  @override
+  String get bodyPartWaist => 'Waist';
+
+  @override
+  String get muscleChest => 'Chest';
+
+  @override
+  String get muscleDelts => 'Delts';
+
+  @override
+  String get muscleFrontDelts => 'Front delts';
+
+  @override
+  String get muscleSideDelts => 'Side delts';
+
+  @override
+  String get muscleRearDelts => 'Rear delts';
+
+  @override
+  String get muscleLats => 'Lats';
+
+  @override
+  String get muscleUpperBack => 'Upper back';
+
+  @override
+  String get muscleTraps => 'Traps';
+
+  @override
+  String get muscleBiceps => 'Biceps';
+
+  @override
+  String get muscleTriceps => 'Triceps';
+
+  @override
+  String get muscleForearms => 'Forearms';
+
+  @override
+  String get muscleQuads => 'Quads';
+
+  @override
+  String get muscleHamstrings => 'Hamstrings';
+
+  @override
+  String get muscleGlutes => 'Glutes';
+
+  @override
+  String get muscleCalves => 'Calves';
+
+  @override
+  String get muscleAbs => 'Abs';
+
+  @override
+  String get muscleObliques => 'Obliques';
+
+  @override
+  String get muscleLowerBack => 'Lower back';
+
+  @override
+  String get muscleHipFlexors => 'Hip flexors';
+
+  @override
+  String get muscleAdductors => 'Adductors';
+
+  @override
+  String get muscleAbductors => 'Abductors';
+
+  @override
+  String get muscleCore => 'Core';
+
+  @override
+  String get muscleNeck => 'Neck';
+
+  @override
+  String get muscleOther => 'Unclassified';
+
+  @override
+  String get equipmentBarbell => 'Barbell';
+
+  @override
+  String get equipmentEzBarbell => 'EZ barbell';
+
+  @override
+  String get equipmentOlympicBarbell => 'Olympic barbell';
+
+  @override
+  String get equipmentTrapBar => 'Trap bar';
+
+  @override
+  String get equipmentDumbbell => 'Dumbbell';
+
+  @override
+  String get equipmentKettlebell => 'Kettlebell';
+
+  @override
+  String get equipmentCable => 'Cable';
+
+  @override
+  String get equipmentLeverageMachine => 'Machine';
+
+  @override
+  String get equipmentSmithMachine => 'Smith machine';
+
+  @override
+  String get equipmentSledMachine => 'Sled machine';
+
+  @override
+  String get equipmentBand => 'Band';
+
+  @override
+  String get equipmentMedicineBall => 'Medicine ball';
+
+  @override
+  String get equipmentBodyWeight => 'Bodyweight';
+
+  @override
+  String get equipmentWeighted => 'Weighted';
+
+  @override
+  String get equipmentAssisted => 'Assisted';
+
+  @override
+  String get equipmentOther => 'Other';
 }

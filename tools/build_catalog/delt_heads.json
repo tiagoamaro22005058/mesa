@@ -1,0 +1,31 @@
+{
+  "_note": [
+    "Hand-maintained override: upstream exercise id → the specific deltoid head the",
+    "exercise trains. Applied at ingestion to `primaryMuscle` only.",
+    "",
+    "Why it exists. The dataset has one undifferentiated `delts` bucket (§5.4), so",
+    "the mapping table cannot produce front_delts or side_delts at all — a lateral",
+    "raise and an overhead press both come through as `delts`. That is fine for",
+    "search and for substitution, and it is NOT fine for M6's per-muscle volume: on",
+    "a Push/Pull/Legs split the question 'am I doing enough side delt work' cannot",
+    "be answered from one bucket, because pressing volume swamps it. This table is",
+    "how an exercise gets classified when that answer starts to matter.",
+    "",
+    "It is deliberately empty. Filling it is a per-exercise judgement, worth making",
+    "only for the exercises actually in the owner's program, and that program does",
+    "not exist until M3. Anything left out stays `delts`, which is honest rather",
+    "than wrong.",
+    "",
+    "Rules the build enforces:",
+    "  - the id must exist in the catalogue, and its primaryMuscle must resolve to",
+    "    `delts` — an override on anything else is a typo and fails the build;",
+    "  - the value must be front_delts, side_delts or rear_delts;",
+    "  - synergist and secondary muscles are NOT rewritten. A press whose primary",
+    "    is front_delts still lists a generic `delts` synergist, because a single",
+    "    head per exercise cannot describe both positions honestly."
+  ],
+
+  "allowed": ["front_delts", "side_delts", "rear_delts"],
+
+  "map": {}
+}

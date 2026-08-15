@@ -110,6 +110,50 @@ void main() {
     });
   });
 
+  group('UserProfile favourites', () {
+    // F2 needs favourites and §4 defined nowhere for them to live. They sit on
+    // the profile document, which is already streamed, so they cost no extra
+    // read (M2 amendment).
+    final profile = UserProfile(displayName: 'Tiago', createdAt: now, updatedAt: now);
+
+    test('start empty', () {
+      expect(profile.favouriteExerciseIds, isEmpty);
+      expect(profile.isFavourite('0043'), isFalse);
+    });
+
+    test('toggling adds and then removes', () {
+      final starred = profile.toggleFavourite('0043');
+
+      expect(starred.isFavourite('0043'), isTrue);
+      expect(starred.toggleFavourite('0043').favouriteExerciseIds, isEmpty);
+    });
+
+    test('keeps the order they were starred in', () {
+      final starred = profile.toggleFavourite('0043').toggleFavourite('0025');
+
+      expect(starred.favouriteExerciseIds, ['0043', '0025']);
+    });
+
+    test('removing one leaves the rest where they were', () {
+      final starred = profile
+          .toggleFavourite('0043')
+          .toggleFavourite('0025')
+          .toggleFavourite('0032');
+
+      expect(starred.toggleFavourite('0025').favouriteExerciseIds, ['0043', '0032']);
+    });
+
+    test('never mutates the profile it was called on', () {
+      profile.toggleFavourite('0043');
+
+      expect(profile.favouriteExerciseIds, isEmpty);
+    });
+
+    test('counts towards equality', () {
+      expect(profile.toggleFavourite('0043'), isNot(profile));
+    });
+  });
+
   group('UnitSystem', () {
     test('wire values are the ones §4 stores', () {
       expect(UnitSystem.kg.wireValue, 'kg');

@@ -1,9 +1,13 @@
 import 'dart:async';
 
 import 'package:mesa/core/failures/auth_failure.dart';
+import 'package:mesa/core/failures/catalog_failure.dart';
 import 'package:mesa/domain/models/auth_user.dart';
+import 'package:mesa/domain/models/exercise.dart';
 import 'package:mesa/domain/models/user_profile.dart';
 import 'package:mesa/domain/repositories/auth_repository.dart';
+import 'package:mesa/domain/repositories/custom_exercise_repository.dart';
+import 'package:mesa/domain/repositories/exercise_catalog.dart';
 import 'package:mesa/domain/repositories/user_profile_repository.dart';
 
 /// In-memory [AuthRepository].
@@ -148,6 +152,71 @@ class FakeUserProfileRepository implements UserProfileRepository {
   Future<void> save(String uid, UserProfile profile) async {
     profiles[uid] = profile;
     _controllerFor(uid).add(profile);
+  }
+
+  Future<void> dispose() async {
+    for (final controller in _controllers.values) {
+      await controller.close();
+    }
+  }
+}
+
+/// In-memory [ExerciseCatalog].
+///
+/// Holds a handful of exercises rather than the real 1,295: a widget test that
+/// parsed the whole asset would spend more time on JSON than on the screen it
+/// is testing. `bundled_catalog_test.dart` is what proves the real asset loads.
+class FakeExerciseCatalog implements ExerciseCatalog {
+  FakeExerciseCatalog({this.exercises = const []});
+
+  List<Exercise> exercises;
+
+  /// Set to make [load] fail, standing in for an asset that never shipped.
+  CatalogFailure? failure;
+
+  int loadCount = 0;
+
+  @override
+  Future<List<Exercise>> load() async {
+    loadCount++;
+    final failure = this.failure;
+    if (failure != null) throw failure;
+    return exercises;
+  }
+}
+
+/// In-memory [CustomExerciseRepository], keyed by uid so cross-account
+/// isolation can be asserted here the way the rules tests assert it.
+class FakeCustomExerciseRepository implements CustomExerciseRepository {
+  final Map<String, List<Exercise>> exercises = {};
+  final Map<String, StreamController<List<Exercise>>> _controllers = {};
+
+  StreamController<List<Exercise>> _controllerFor(String uid) {
+    return _controllers.putIfAbsent(uid, StreamController<List<Exercise>>.broadcast);
+  }
+
+  /// Replays what is stored before following the controller — a broadcast
+  /// stream alone would drop everything written before the subscription.
+  @override
+  Stream<List<Exercise>> watch(String uid) async* {
+    yield exercises[uid] ?? const [];
+    yield* _controllerFor(uid).stream;
+  }
+
+  @override
+  Future<void> save(String uid, Exercise exercise) async {
+    final owned = [...?exercises[uid]]..removeWhere((e) => e.id == exercise.id);
+    owned.add(exercise);
+    owned.sort((a, b) => a.name.compareTo(b.name));
+    exercises[uid] = owned;
+    _controllerFor(uid).add(owned);
+  }
+
+  @override
+  Future<void> delete(String uid, String exerciseId) async {
+    final owned = [...?exercises[uid]]..removeWhere((e) => e.id == exerciseId);
+    exercises[uid] = owned;
+    _controllerFor(uid).add(owned);
   }
 
   Future<void> dispose() async {

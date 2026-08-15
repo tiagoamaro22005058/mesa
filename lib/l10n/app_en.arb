@@ -207,5 +207,296 @@
   "profileLoading": "Loading your profile…",
   "@profileLoading": {
     "description": "Shown while the profile document is being read for the first time."
-  }
+  },
+
+  "catalogTitle": "Exercises",
+  "@catalogTitle": {
+    "description": "Title of the exercise catalogue screen."
+  },
+  "catalogSearchHint": "Search exercises",
+  "@catalogSearchHint": {
+    "description": "Placeholder in the catalogue search field."
+  },
+  "catalogSearchClear": "Clear search",
+  "@catalogSearchClear": {
+    "description": "Accessibility label of the button that empties the search field."
+  },
+  "catalogResultCount": "{count, plural, =0{No exercises} =1{1 exercise} other{{count} exercises}}",
+  "@catalogResultCount": {
+    "description": "How many exercises the current search and filters match.",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "catalogEmptyTitle": "Nothing matches",
+  "@catalogEmptyTitle": {
+    "description": "Heading shown when a search returns no exercises."
+  },
+  "catalogEmptyBody": "Try a shorter search, or clear the filters.",
+  "@catalogEmptyBody": {
+    "description": "Body text shown when a search returns no exercises."
+  },
+  "catalogClearFilters": "Clear filters",
+  "@catalogClearFilters": {
+    "description": "Label of the button that removes every active catalogue filter."
+  },
+  "catalogFiltersTitle": "Filters",
+  "@catalogFiltersTitle": {
+    "description": "Title of the catalogue filter sheet."
+  },
+  "catalogFiltersAction": "Filter",
+  "@catalogFiltersAction": {
+    "description": "Label of the button that opens the catalogue filter sheet."
+  },
+  "catalogFilterBodyPart": "Body part",
+  "@catalogFilterBodyPart": {
+    "description": "Heading of the body part filter group."
+  },
+  "catalogFilterMuscle": "Primary muscle",
+  "@catalogFilterMuscle": {
+    "description": "Heading of the primary muscle filter group."
+  },
+  "catalogFilterEquipment": "Equipment",
+  "@catalogFilterEquipment": {
+    "description": "Heading of the equipment filter group."
+  },
+  "catalogFilterFavourites": "Favourites only",
+  "@catalogFilterFavourites": {
+    "description": "Toggle that narrows the catalogue to starred exercises."
+  },
+  "catalogFilterDone": "Show results",
+  "@catalogFilterDone": {
+    "description": "Label of the button that closes the filter sheet."
+  },
+  "catalogCustomBadge": "Custom",
+  "@catalogCustomBadge": {
+    "description": "Badge marking an exercise the user created rather than a catalogue one."
+  },
+  "catalogNewExercise": "New exercise",
+  "@catalogNewExercise": {
+    "description": "Label of the button that creates a custom exercise."
+  },
+  "catalogLoadFailed": "The exercise catalogue could not be loaded.",
+  "@catalogLoadFailed": {
+    "description": "Shown when the bundled catalogue asset is missing or unreadable. A build fault, not something the user can fix."
+  },
+  "catalogFavouriteAdd": "Add to favourites",
+  "@catalogFavouriteAdd": {
+    "description": "Accessibility label of the unfilled star button."
+  },
+  "catalogFavouriteRemove": "Remove from favourites",
+  "@catalogFavouriteRemove": {
+    "description": "Accessibility label of the filled star button."
+  },
+  "catalogHomeAction": "Browse exercises",
+  "@catalogHomeAction": {
+    "description": "Label of the home screen button that opens the exercise catalogue."
+  },
+
+  "exerciseInstructionsHeading": "Instructions",
+  "@exerciseInstructionsHeading": {
+    "description": "Heading above an exercise's instruction steps."
+  },
+  "exerciseNoInstructions": "No instructions for this exercise.",
+  "@exerciseNoInstructions": {
+    "description": "Shown on the detail screen when an exercise has no steps."
+  },
+  "exerciseMusclesHeading": "Muscles",
+  "@exerciseMusclesHeading": {
+    "description": "Heading above the muscle breakdown on the detail screen."
+  },
+  "exercisePrimaryMuscle": "Primary",
+  "@exercisePrimaryMuscle": {
+    "description": "Label of the primary muscle on the detail screen."
+  },
+  "exerciseSynergist": "Synergist",
+  "@exerciseSynergist": {
+    "description": "Label of the synergist muscle on the detail screen."
+  },
+  "exerciseSecondaryMuscles": "Also works",
+  "@exerciseSecondaryMuscles": {
+    "description": "Label of the secondary muscles on the detail screen."
+  },
+  "exerciseEquipmentHeading": "Equipment",
+  "@exerciseEquipmentHeading": {
+    "description": "Heading above the equipment and load model on the detail screen."
+  },
+  "exerciseMediaUnavailable": "Image unavailable offline",
+  "@exerciseMediaUnavailable": {
+    "description": "Placeholder shown when exercise media cannot be fetched. Never an error — the rest of the screen works without it (NFR1)."
+  },
+  "exerciseNotFound": "That exercise no longer exists.",
+  "@exerciseNotFound": {
+    "description": "Shown when a link points at an exercise that has been deleted."
+  },
+  "exerciseEdit": "Edit",
+  "@exerciseEdit": {
+    "description": "Label of the button that edits a custom exercise."
+  },
+  "exerciseDelete": "Delete",
+  "@exerciseDelete": {
+    "description": "Label of the button that deletes a custom exercise."
+  },
+  "exerciseDeleteTitle": "Delete this exercise?",
+  "@exerciseDeleteTitle": {
+    "description": "Title of the confirmation dialog before deleting a custom exercise (NFR5)."
+  },
+  "exerciseDeleteBody": "{name} will be removed. This cannot be undone.",
+  "@exerciseDeleteBody": {
+    "description": "Body of the delete confirmation dialog.",
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "exerciseDeleted": "Exercise deleted",
+  "@exerciseDeleted": {
+    "description": "Confirmation shown after a custom exercise is deleted."
+  },
+
+  "customExerciseNewTitle": "New exercise",
+  "@customExerciseNewTitle": {
+    "description": "Title of the form that creates a custom exercise."
+  },
+  "customExerciseEditTitle": "Edit exercise",
+  "@customExerciseEditTitle": {
+    "description": "Title of the form that edits a custom exercise."
+  },
+  "customExerciseNameLabel": "Name",
+  "@customExerciseNameLabel": {
+    "description": "Label of the name field on the custom exercise form."
+  },
+  "customExerciseStepsLabel": "Instructions",
+  "@customExerciseStepsLabel": {
+    "description": "Label of the instructions field on the custom exercise form."
+  },
+  "customExerciseStepsHint": "One step per line. Optional.",
+  "@customExerciseStepsHint": {
+    "description": "Helper text under the instructions field on the custom exercise form."
+  },
+  "customExerciseLoadModelLabel": "Logged as",
+  "@customExerciseLoadModelLabel": {
+    "description": "Label above the load model, which is derived from the chosen equipment rather than picked."
+  },
+  "customExerciseSaved": "Exercise saved",
+  "@customExerciseSaved": {
+    "description": "Confirmation shown after a custom exercise is created or edited."
+  },
+
+  "loadModelExternal": "Weight you enter",
+  "@loadModelExternal": {
+    "description": "Display name of the externalLoad load model (§5.6)."
+  },
+  "loadModelBodyweight": "Bodyweight, tracked by reps",
+  "@loadModelBodyweight": {
+    "description": "Display name of the bodyweight load model (§5.6)."
+  },
+  "loadModelBodyweightPlusLoad": "Bodyweight plus added weight",
+  "@loadModelBodyweightPlusLoad": {
+    "description": "Display name of the bodyweightPlusLoad load model (§5.6)."
+  },
+  "loadModelAssisted": "Assistance, less is better",
+  "@loadModelAssisted": {
+    "description": "Display name of the assisted load model, whose load moves inverse to progress (§5.6)."
+  },
+
+  "bodyPartBack": "Back",
+  "@bodyPartBack": { "description": "Body part filter label." },
+  "bodyPartChest": "Chest",
+  "@bodyPartChest": { "description": "Body part filter label." },
+  "bodyPartLowerArms": "Lower arms",
+  "@bodyPartLowerArms": { "description": "Body part filter label." },
+  "bodyPartLowerLegs": "Lower legs",
+  "@bodyPartLowerLegs": { "description": "Body part filter label." },
+  "bodyPartNeck": "Neck",
+  "@bodyPartNeck": { "description": "Body part filter label." },
+  "bodyPartShoulders": "Shoulders",
+  "@bodyPartShoulders": { "description": "Body part filter label." },
+  "bodyPartUpperArms": "Upper arms",
+  "@bodyPartUpperArms": { "description": "Body part filter label." },
+  "bodyPartUpperLegs": "Upper legs",
+  "@bodyPartUpperLegs": { "description": "Body part filter label." },
+  "bodyPartWaist": "Waist",
+  "@bodyPartWaist": { "description": "Body part filter label." },
+
+  "muscleChest": "Chest",
+  "@muscleChest": { "description": "Muscle name." },
+  "muscleDelts": "Delts",
+  "@muscleDelts": { "description": "Muscle name. The dataset does not distinguish the three heads (§5.4)." },
+  "muscleFrontDelts": "Front delts",
+  "@muscleFrontDelts": { "description": "Muscle name. Only reachable through the hand-maintained delt head override." },
+  "muscleSideDelts": "Side delts",
+  "@muscleSideDelts": { "description": "Muscle name. Only reachable through the hand-maintained delt head override." },
+  "muscleRearDelts": "Rear delts",
+  "@muscleRearDelts": { "description": "Muscle name." },
+  "muscleLats": "Lats",
+  "@muscleLats": { "description": "Muscle name." },
+  "muscleUpperBack": "Upper back",
+  "@muscleUpperBack": { "description": "Muscle name." },
+  "muscleTraps": "Traps",
+  "@muscleTraps": { "description": "Muscle name." },
+  "muscleBiceps": "Biceps",
+  "@muscleBiceps": { "description": "Muscle name." },
+  "muscleTriceps": "Triceps",
+  "@muscleTriceps": { "description": "Muscle name." },
+  "muscleForearms": "Forearms",
+  "@muscleForearms": { "description": "Muscle name." },
+  "muscleQuads": "Quads",
+  "@muscleQuads": { "description": "Muscle name." },
+  "muscleHamstrings": "Hamstrings",
+  "@muscleHamstrings": { "description": "Muscle name." },
+  "muscleGlutes": "Glutes",
+  "@muscleGlutes": { "description": "Muscle name." },
+  "muscleCalves": "Calves",
+  "@muscleCalves": { "description": "Muscle name." },
+  "muscleAbs": "Abs",
+  "@muscleAbs": { "description": "Muscle name." },
+  "muscleObliques": "Obliques",
+  "@muscleObliques": { "description": "Muscle name." },
+  "muscleLowerBack": "Lower back",
+  "@muscleLowerBack": { "description": "Muscle name." },
+  "muscleHipFlexors": "Hip flexors",
+  "@muscleHipFlexors": { "description": "Muscle name." },
+  "muscleAdductors": "Adductors",
+  "@muscleAdductors": { "description": "Muscle name." },
+  "muscleAbductors": "Abductors",
+  "@muscleAbductors": { "description": "Muscle name." },
+  "muscleCore": "Core",
+  "@muscleCore": { "description": "Muscle name." },
+  "muscleNeck": "Neck",
+  "@muscleNeck": { "description": "Muscle name." },
+  "muscleOther": "Unclassified",
+  "@muscleOther": { "description": "Muscle name for the long tail with no home in the enum (§5.4). Deliberately reads as unclassified rather than naming a muscle it is not." },
+
+  "equipmentBarbell": "Barbell",
+  "@equipmentBarbell": { "description": "Equipment name." },
+  "equipmentEzBarbell": "EZ barbell",
+  "@equipmentEzBarbell": { "description": "Equipment name." },
+  "equipmentOlympicBarbell": "Olympic barbell",
+  "@equipmentOlympicBarbell": { "description": "Equipment name." },
+  "equipmentTrapBar": "Trap bar",
+  "@equipmentTrapBar": { "description": "Equipment name." },
+  "equipmentDumbbell": "Dumbbell",
+  "@equipmentDumbbell": { "description": "Equipment name." },
+  "equipmentKettlebell": "Kettlebell",
+  "@equipmentKettlebell": { "description": "Equipment name." },
+  "equipmentCable": "Cable",
+  "@equipmentCable": { "description": "Equipment name." },
+  "equipmentLeverageMachine": "Machine",
+  "@equipmentLeverageMachine": { "description": "Equipment name." },
+  "equipmentSmithMachine": "Smith machine",
+  "@equipmentSmithMachine": { "description": "Equipment name." },
+  "equipmentSledMachine": "Sled machine",
+  "@equipmentSledMachine": { "description": "Equipment name." },
+  "equipmentBand": "Band",
+  "@equipmentBand": { "description": "Equipment name." },
+  "equipmentMedicineBall": "Medicine ball",
+  "@equipmentMedicineBall": { "description": "Equipment name." },
+  "equipmentBodyWeight": "Bodyweight",
+  "@equipmentBodyWeight": { "description": "Equipment name." },
+  "equipmentWeighted": "Weighted",
+  "@equipmentWeighted": { "description": "Equipment name." },
+  "equipmentAssisted": "Assisted",
+  "@equipmentAssisted": { "description": "Equipment name." },
+  "equipmentOther": "Other",
+  "@equipmentOther": { "description": "Equipment name for the long tail: balls, rollers, ropes (§5.4)." }
 }

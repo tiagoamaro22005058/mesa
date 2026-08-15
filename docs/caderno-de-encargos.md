@@ -133,6 +133,7 @@ All user data is namespaced under `users/{uid}`. Nothing user-owned lives outsid
 users/{uid}
   { displayName, units: 'kg'|'lb', barWeight: 20, plateInventory: [25,20,15,10,5,2.5,1.25],
     dumbbellIncrement: 2, bodyweight, bodyweightUpdatedAt,
+    favouriteExerciseIds: [],
     activeProgramId, activeGymId, createdAt, updatedAt }
 
 users/{uid}/bodyweightLog/{entryId}
@@ -175,6 +176,7 @@ users/{uid}/customExercises/{exerciseId}
 ### 4.1 Rules
 
 - `bodyweight` is the **current** value, denormalised onto the profile so the ~36 `bodyweightPlusLoad` exercises (§5.6) cost no extra read mid-session. `bodyweightLog` is the dated history: a new entry is appended whenever the value changes, never overwritten. Both are needed — the profile answers "what do I load today", the log answers "what was I when I lifted that", which is what keeps a historical e1RM from silently rewriting itself when the user's weight changes (§7.2). Decided M1, built in **M5**; M1 stores neither. A subcollection rather than an array: entries accumulate for years and are read by date range, not as a unit.
+- `favouriteExerciseIds` holds the exercises starred in F2, catalogue and custom alike. Added in **M2**: F2 requires favourites and §4 originally defined nowhere for them to live. An array on the profile rather than a subcollection, because the document is already streamed for every other setting — favourites therefore cost no extra read and no extra listener (NFR2) — and the list will never exceed a few dozen ids. Deleting a custom exercise unstars it in the same action, so the favourites filter cannot show a row that resolves to nothing.
 - Blocks are embedded in the Day document, not a subcollection — a day is read as a unit and never exceeds a few KB.
 - `setLogs` is a subcollection — sessions can hold 40+ sets and are written incrementally during a workout.
 - `exerciseStats` exists so history screens and "last time you did this" lookups cost **one document read**, not a query across every session. Written by the app on session completion; a Cloud Function is not required for v1.
@@ -239,7 +241,21 @@ Ingestion strips to English and drops cardio. Measured, not estimated:
 | English only, cardio excluded, with instruction steps | **1.05 MB** |
 | Same, instruction steps dropped | 0.41 MB |
 
-At 1.05 MB the catalogue ships in the APK and loads into memory at startup — no database, no lazy loading, no Firestore reads. For reference on why media stays remote: thumbnails are ~6 KB each (~8 MB for the set), GIFs 90–125 KB each (**~150 MB** for the set).
+At this size the catalogue ships in the APK and loads into memory — no database, no Firestore reads. For reference on why media stays remote: thumbnails are ~6 KB each (~8 MB for the set), GIFs 90–125 KB each (**~150 MB** for the set).
+
+**Measured after ingestion (M2): 1.12 MB, 1,295 exercises.** The count is exactly
+as predicted. The extra 70 KB over the estimate is the fields ingestion adds
+rather than copies — `loadModel`, `gymTag`, `aliases` — plus normalised muscle
+names being longer than upstream's.
+
+**Not at startup, and lazily.** §5.2 originally said the catalogue loads at
+startup; M2 does not, because it does not need to. Nothing reads the asset until
+the catalogue screen is opened, and the parse is then kept for the rest of the
+session. Cold start is therefore untouched by it, which serves NFR3 better than
+making the parse fast would. The parse also runs on the main isolate rather than
+through `compute`: it costs tens of milliseconds once per session, behind a
+spinner, and shipping 1,295 objects back across an isolate boundary would cost
+as much again in copying.
 
 ### 5.3 Upstream schema → internal model
 
@@ -261,11 +277,35 @@ At 1.05 MB the catalogue ships in the APK and loads into memory at startup — n
 
 The muscle vocabularies contain synonym pairs that will silently split analytics and break substitution if passed through raw: `traps`/`trapezius`, `delts`/`deltoids`/`shoulders`, `quads`/`quadriceps`, `abs`/`abdominals`, `lats`/`latissimus dorsi`, `upper back`/`rhomboids`.
 
-- Every muscle string from `target`, `muscle_group` and `secondary_muscles` passes through **one** canonical mapping table into a fixed enum: chest, front_delts, side_delts, rear_delts, lats, upper_back, traps, biceps, triceps, forearms, quads, hamstrings, glutes, calves, abs, obliques, lower_back, hip_flexors, adductors, abductors, core, neck.
+- Every muscle string from `target`, `muscle_group` and `secondary_muscles` passes through **one** canonical mapping table into a fixed enum: chest, **delts**, front_delts, side_delts, rear_delts, lats, upper_back, traps, biceps, triceps, forearms, quads, hamstrings, glutes, calves, abs, obliques, lower_back, hip_flexors, adductors, abductors, core, neck, **other**.
+
+  **`delts` and `other` were added in M2**, after the dataset was measured against the original list. The dataset carries 49 distinct muscle strings and neither member is optional:
+
+  - **`delts`** — upstream never distinguishes the three deltoid heads. `delts`, `deltoids` and `shoulders` are one undifferentiated bucket (777 mentions across the three fields), and only `rear deltoids` (20, secondary only) is specific. Splitting them by guesswork would put wrong numbers into M6's per-muscle volume, so they collapse to a generic `delts`. **`front_delts` and `side_delts` are therefore produced by nothing in the mapping table** — see the delt-head override below, which is the only thing that can produce them.
+  - **`other`** — the long tail with no honest home: ankles (22), feet (8), shins, ankle stabilizers, serratus anterior (5). One visibly-unclassified bucket beats filing six things under near neighbours, and it renders as "Unclassified" rather than naming a muscle it is not.
+  - **`rotator cuff` (10 mentions) maps to `rear_delts`**, not `other`. The exercises using it are face pulls and external rotations, which are rear-delt work in any training sense. The anatomical objection — the cuff is four muscles, none of them the deltoid — loses to the practical one: those sets get counted somewhere, and rear delts is where a lifter looks for them. Burying them in `other` would make M6 undercount the area a Push/Pull/Legs split is most likely to be short on.
+
+- **The deltoid-head override.** `tools/build_catalog/delt_heads.json` maps an exercise id to a specific head, applied at ingestion to `primaryMuscle` only. It exists because M6's per-muscle volume cannot answer "is my side delt volume enough" out of one bucket — pressing volume swamps it — and the dataset gives nothing to answer it with. It ships **empty**: filling it is a per-exercise judgement worth making only for the exercises in the owner's actual program, which does not exist until M3. Anything left out stays `delts`, which is honest rather than wrong. The build enforces that an override names a real exercise whose primary muscle already resolves to `delts`, so a typo fails the build rather than silently reclassifying a bench press. Synergist and secondary entries are **not** rewritten — one head per exercise cannot describe both positions of an overhead press.
+
+- **The primary muscle is removed from `secondaryMuscles`.** After the synonym collapse a record can carry the same muscle twice — `target: delts` with `shoulders` in the secondary list — which would double-count the exercise in M6's volume. Secondary lists are also deduplicated.
+
+- **Four upstream names arrive mis-encoded** (`sled 45в° leg press`, and three like it) and are corrected verbatim through `tools/build_catalog/mappings/name_fixes.json`. Record 1463 spells the same name correctly, so this is an upstream inconsistency rather than an encoding to respect. A table rather than a regex, for the same reason the muscle vocabulary is one; the build fails if a fix's source text stops matching, so an upstream correction cannot silently reinstate our stale spelling.
 - The 28 equipment strings map onto the `Gym.equipment` vocabulary. The long tail (`tire`, `hammer`, `skierg machine`, `upper body ergometer`, `wheel roller`, `bosu ball`, `sled machine`, `roller`, …) collapses to `other` or is excluded — decide per tag in the mapping file; free-text must not survive ingestion.
+
+  **Corrected in M2: they cannot collapse only that far.** §5.6 needs `weighted` and `assisted` told apart from everything else, and §7.2's load increment needs a kettlebell told apart from a barbell — and neither `weighted` nor `assisted` is a gym tag at all. So the model keeps a fine-grained `Equipment` enum as §5.5 declares, and carries the §4 gym tag *alongside* it as a property of that enum. One mapping table, both answers, no UI in M2 — M7's substitution is what consumes the tag.
+
+  A gym tag may be **null**, meaning the requirement is not expressible in §4's seven tags: a stability ball is neither a machine nor bodyweight. 67 records are in that position. Substitution will never flag them as missing at a gym, which is the honest outcome — the app has no way to record whether a gym has one. Widening §4's vocabulary is the fix if that ever matters; it does not in v1.
+
+  **The long tail is kept, not excluded** (decided M2). 61 non-cardio records use equipment §5.6 assigned no load model to: stability ball (28), rope (9), roller (8), resistance band (7), bosu ball (3), wheel roller (2), plus a hammer, a tire and two cardio machines whose `body_part` is not `cardio` and which therefore survive the exclusion. `resistance band` collapses onto `band`; the rest become `other`. Excluding them instead would have put the count below the 1,295 §5.2 states.
 - Exclude `body_part == "cardio"` (29 records). Result: **1,295 exercises**.
 - Any value absent from the mapping tables **fails the build** and is written to `tools/build_catalog/unmapped.json`. Silent pass-through is forbidden — that is exactly how synonym drift reaches the database.
-- Six duplicate names exist (`lever chest press`, `ez barbell spider curl`, `barbell seated calf raise`, `push-up (on stability ball)`, `self assisted inverse leg curl`, `smith reverse calf raises`). Disambiguate at display time by appending equipment; ids stay distinct so nothing else is affected.
+- Six duplicate names exist (`lever chest press`, `ez barbell spider curl`, `barbell seated calf raise`, `push-up (on stability ball)`, `self assisted inverse leg curl`, `smith reverse calf raises`). ~~Disambiguate at display time by appending equipment~~; ids stay distinct so nothing else is affected.
+
+  **Wrong, corrected in M2. Appending equipment cannot disambiguate these.** All six pairs share their equipment, primary muscle *and* body part, differing only in id, media and — in two cases — a reworded instruction step. Appending equipment produces two identical labels.
+
+  What ships instead: **equipment is shown on every row** as part of the subtitle, which is more useful than a rule that fires six times and disambiguates anything that genuinely differs by equipment; and where the name *and* equipment still collide, the row appends the **upstream id**, which is the only thing that tells those apart.
+
+  Measured over the generated catalogue this flags **eight pairs, not six**. The two §5.4 missed differ only in punctuation — `dumbbell close grip press` / `dumbbell close-grip press`, and `dumbbell standing one arm curl (over incline bench)` / the same without brackets — because the collision test compares normalised names. A reader scanning a list cannot tell a hyphen apart either, so they are flagged too.
 - `aliases` is hand-maintained in `tools/build_catalog/aliases_pt.json`. The dataset carries 10 languages but **no Portuguese**, so Portuguese search only finds what you add — seed it with the exercises actually in your program, not all 1,295.
 
 ### 5.5 Internal Exercise model
@@ -284,9 +324,19 @@ class Exercise {
   final List<String> steps;           // instruction_steps.en
   final String? thumbnailUrl;
   final String? gifUrl;
-  final String attribution;
+  final String? attribution;          // null for custom — nothing to credit
+  final ExerciseSource source;        // catalogue | custom
 }
 ```
+
+**Two fields added in M2.**
+
+- **`source`.** §4 already stores `source: 'custom'`, and F2 needs user-created exercises to appear inline in search results, visually marked. One merged list beats a parallel type, so §3's **`CustomExercise` is an `Exercise` whose `source` is `custom`** rather than a class of its own.
+- **`attribution` is nullable.** It is a licence obligation for the bundled records (§5.1) and meaningless for a user-created one, which borrows no media.
+
+`thumbnailUrl` and `gifUrl` are **absolute once loaded and relative in the asset**. The asset stores `images/0001-….jpg` and the loader prefixes it with the raw base URL pinned to the same upstream commit as the data; baking absolute URLs into the asset would add ~230 KB to the APK and pin the host into data meant to outlive it. A test asserts the URL's commit and `version.json`'s `sourceCommit` agree, because a drift there would show one exercise's name over another's animation.
+
+The **gym equipment tag** (§5.4) is not a field here — it is a property of the `Equipment` enum, since it is a function of equipment and storing it twice only creates a way for the two to disagree.
 
 ### 5.6 Load models — derived, absent upstream
 
@@ -300,6 +350,10 @@ The dataset says nothing about *how* an exercise is loaded, but the progression 
 | `assisted` | assisted (15 records) | The load **is assistance** — it moves inverse to progress. Less assistance is improvement. |
 
 The `assisted` inversion and the `bodyweightPlusLoad` bodyweight dependency are the two most likely sources of silently wrong numbers in this app. Both get explicit unit tests (§7.4).
+
+**Completed in M2.** The table above covers 1,234 of the 1,295 records; the remaining 61 use the long-tail equipment §5.4 now resolves. Stability balls, bosu balls, rollers, wheel rollers and ropes carry no external load and are `bodyweight` — they are stretches and core work. A sledge hammer and a tire flip do have a load the user can type, so they stay `externalLoad`. `resistance band` follows `band` into `externalLoad`. Final spread over the generated catalogue: **externalLoad 888, bodyweight 356, bodyweightPlusLoad 36, assisted 15**.
+
+The load model is **derived from equipment, never stored independently on a user-created exercise**. The custom-exercise form shows what the chosen equipment implies but does not let it be overridden, and the Firestore converter recomputes it on read rather than trusting a stored value. Letting the two disagree is precisely how the §7 maths goes quietly wrong. A test holds every catalogue record's load model to what its equipment derives, which is what stops the Python mapping table and the Dart enum drifting apart.
 
 ### 5.7 Pipeline
 
@@ -336,6 +390,13 @@ Each feature lists acceptance criteria. A milestone is done when its criteria pa
 - Favourites.
 
 **Acceptance:** search returns results with the device in aeroplane mode.
+
+**Scope split (M2).** Everything above shipped in M2 **except the detail screen's personal history and e1RM chart**, which are deliberately absent rather than unfinished:
+
+- `exerciseStats` has no writer until session completion, which is **M4**.
+- Charts are **M6**.
+
+Building either in M2 would mean building against a collection nothing writes. A widget test asserts the detail screen carries neither, so the boundary is checked rather than remembered. Fill them in at M6, when both the data and the chart library are in play.
 
 ### F3 — Program builder
 
@@ -504,6 +565,14 @@ exactly one localised string.
 - M1 established the pattern with `AuthFailure` / `AuthFailureKind`
   (`core/failures/auth_failure.dart`), translated in
   `data/firestore/auth_failure_mapper.dart`.
+- M2 added the two siblings §9.1 anticipated: `CatalogFailure` for a bundled
+  asset that is missing, malformed, or carries a value this build has no enum
+  member for; and `FirestoreFailure`, translated in
+  `data/firestore/firestore_failure_mapper.dart`. `FirestoreFailure`
+  deliberately has **no `networkUnavailable` kind** — Firestore applies a write
+  to its local cache synchronously and syncs later, so a write that has not
+  reached the server is a write that succeeded, and telling the user otherwise
+  would contradict NFR1.
 - Later milestones add sibling types for their own domains — a Firestore
   failure, a catalogue-load failure — following the same shape rather than
   inventing a different error style. Reuse `AuthFailureKind` where the meaning
@@ -569,6 +638,15 @@ Build in this order. Each milestone ends with a working app, a passing test suit
 3. Is Portuguese UI needed at launch, or is English-with-ARB-ready sufficient?
 
 ### 12.1 Answered
+
+- **The deltoid heads cannot come from the data** (M2, 2026-08-15) — the dataset has one undifferentiated `delts` bucket, so the enum gained a generic `delts` and `front_delts`/`side_delts` are reachable only through the hand-maintained `delt_heads.json` override, which ships empty. Recorded in §5.4 so **M6 does not discover the limitation** while trying to answer "is my side delt volume enough": if that question matters, the override table is where the answer comes from, and it has to be filled in per exercise first.
+- **Rotator cuff counts as rear delts** (M2) — 10 mentions, all face pulls and external rotations. Filed under `rear_delts` rather than `other` so M6 does not undercount the area a PPL split is most likely to be short on. §5.4 carries the reasoning.
+- **Favourites live on the profile** (M2) — `users/{uid}.favouriteExerciseIds`. F2 required favourites and §4 defined nowhere for them. Zero extra reads, since the document is already streamed. Added to §4.
+- **`Exercise` gained `source`** (M2) — §3's `CustomExercise` is an `Exercise` whose source is `custom`, not a separate class, so search can merge the two lists and mark one. §5.5 amended, along with `attribution` becoming nullable.
+- **Equipment does not collapse onto the gym vocabulary alone** (M2) — §5.6 and §7.2 need finer granularity than §4's seven tags, and `weighted`/`assisted` are not tags at all. The `Equipment` enum stays fine-grained and carries the gym tag as a property, which may be null where §4's vocabulary cannot express the requirement. §5.4 amended.
+- **The long tail is kept, not excluded** (M2) — 61 records on stability balls, ropes and rollers stay in the catalogue as `other`, which keeps the count at §5.2's 1,295. §5.4 and §5.6 amended.
+- **Appending equipment cannot disambiguate the duplicate names** (M2) — all six pairs share their equipment. Equipment now shows on every row and the genuinely ambiguous rows append the upstream id. There are eight such pairs, not six. §5.4 corrected.
+- **F2's history and chart are M4/M6 work** (M2) — the detail screen ships without them because `exerciseStats` has no writer yet. §6 F2 carries the split.
 
 - **Google Sign-In signing keys** (M1, 2026-08-15) — the debug keystore's SHA-1 is registered in both Firebase projects and Google Sign-In works on device. **The release keystore's SHA-1 is not, and must be added at M7 or sign-in breaks in the signed build.** See §2 and the M7 warning in §10.
 

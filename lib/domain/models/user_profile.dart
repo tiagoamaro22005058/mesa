@@ -22,6 +22,7 @@ class UserProfile {
     this.barWeight = defaultBarWeight,
     this.plateInventory = defaultPlateInventory,
     this.dumbbellIncrement = defaultDumbbellIncrement,
+    this.favouriteExerciseIds = const [],
     this.activeProgramId,
     this.activeGymId,
   });
@@ -33,6 +34,16 @@ class UserProfile {
   final double barWeight;
   final List<double> plateInventory;
   final double dumbbellIncrement;
+
+  /// Catalogue and custom exercise ids the user starred (F2).
+  ///
+  /// On the profile rather than in a subcollection (M2): the document is
+  /// already streamed for every other setting, so favourites cost no extra
+  /// read and no extra listener (NFR2), and the list will never exceed a few
+  /// dozen ids. §4 did not define anywhere for these to live; this is that
+  /// amendment.
+  final List<String> favouriteExerciseIds;
+
   final String? activeProgramId;
   final String? activeGymId;
 
@@ -43,6 +54,19 @@ class UserProfile {
   static const double defaultDumbbellIncrement = 2;
 
   static const ListEquality<double> _weights = ListEquality<double>();
+  static const ListEquality<String> _ids = ListEquality<String>();
+
+  bool isFavourite(String exerciseId) => favouriteExerciseIds.contains(exerciseId);
+
+  /// Adds or removes [exerciseId], returning the updated profile.
+  ///
+  /// Order is preserved and newest goes last, so the favourites filter reads in
+  /// the order they were starred rather than reshuffling on every toggle.
+  UserProfile toggleFavourite(String exerciseId) {
+    final updated = [...favouriteExerciseIds];
+    if (!updated.remove(exerciseId)) updated.add(exerciseId);
+    return copyWith(favouriteExerciseIds: updated);
+  }
 
   /// Pass a nullable field explicitly — including as `null` — to change it;
   /// omit it to leave it as it is.
@@ -54,6 +78,7 @@ class UserProfile {
     double? barWeight,
     List<double>? plateInventory,
     double? dumbbellIncrement,
+    List<String>? favouriteExerciseIds,
     Object? activeProgramId = _unset,
     Object? activeGymId = _unset,
   }) {
@@ -65,6 +90,7 @@ class UserProfile {
       barWeight: barWeight ?? this.barWeight,
       plateInventory: plateInventory ?? this.plateInventory,
       dumbbellIncrement: dumbbellIncrement ?? this.dumbbellIncrement,
+      favouriteExerciseIds: favouriteExerciseIds ?? this.favouriteExerciseIds,
       activeProgramId: identical(activeProgramId, _unset)
           ? this.activeProgramId
           : activeProgramId as String?,
@@ -86,6 +112,7 @@ class UserProfile {
       // different list object with the same plates in it.
       _weights.equals(other.plateInventory, plateInventory) &&
       other.dumbbellIncrement == dumbbellIncrement &&
+      _ids.equals(other.favouriteExerciseIds, favouriteExerciseIds) &&
       other.activeProgramId == activeProgramId &&
       other.activeGymId == activeGymId;
 
@@ -98,6 +125,7 @@ class UserProfile {
     barWeight,
     _weights.hash(plateInventory),
     dumbbellIncrement,
+    _ids.hash(favouriteExerciseIds),
     activeProgramId,
     activeGymId,
   );

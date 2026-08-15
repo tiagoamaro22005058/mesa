@@ -30,6 +30,19 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      # §10's M2 criterion: the build fails on any unmapped muscle or equipment
+      # value. The ingestion is a Python script whose output is committed, so
+      # without these two steps that guarantee would only ever be exercised by
+      # hand. `--check` regenerates the catalogue and refuses three separate
+      # things: an unmapped value, a committed asset that is out of date, and a
+      # build that is not idempotent. Python 3 is preinstalled on the runner
+      # and the pipeline is standard library only.
+      - name: Test the catalogue ingestion
+        run: python3 tools/build_catalog/test_build.py
+
+      - name: Verify the committed catalogue is current
+        run: python3 tools/build_catalog/build.py --check
+
       - name: Analyze
         run: flutter analyze
 

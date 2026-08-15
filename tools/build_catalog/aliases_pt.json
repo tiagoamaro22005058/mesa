@@ -1,0 +1,58 @@
+{
+  "_note": [
+    "Hand-maintained search aliases, keyed by upstream exercise id (§5.4).",
+    "",
+    "The dataset ships instructions in ten languages and Portuguese is not one of",
+    "them, so Portuguese search finds exactly what is written here and nothing",
+    "else. Seeded with the compound lifts a Legs/Push/Pull mesocycle is built from",
+    "— §5.4 says to seed it from the owner's actual program, which does not exist",
+    "until M3, so this is the standing-in set. Extend it there.",
+    "",
+    "Accents are written naturally; search strips them before matching, so",
+    "'flexao' finds 'flexão'. PT-BR synonyms are included where the term genuinely",
+    "differs from PT-PT (gémeos / panturrilha).",
+    "",
+    "The build fails on an id that is not in the catalogue, so a typo here cannot",
+    "silently produce an alias nothing will ever match."
+  ],
+
+  "map": {
+    "0043": ["agachamento livre", "agachamento com barra"],
+    "0042": ["agachamento frontal"],
+    "0063": ["agachamento pernas juntas"],
+    "0032": ["levantamento terra", "peso morto"],
+    "0085": ["peso morto romeno", "terra romeno"],
+    "0336": ["afundo com halteres", "avanço"],
+    "0585": ["cadeira extensora", "extensão de pernas"],
+    "0599": ["cadeira flexora", "flexão de pernas"],
+    "0417": ["elevação de gémeos", "panturrilha em pé"],
+
+    "0025": ["supino reto", "supino com barra"],
+    "0047": ["supino inclinado"],
+    "0289": ["supino com halteres"],
+    "0308": ["crucifixo com halteres"],
+    "0662": ["flexão de braços", "flexões"],
+    "0251": ["paralelas para peito"],
+    "0814": ["mergulho", "paralelas"],
+    "0091": ["desenvolvimento com barra"],
+    "0426": ["desenvolvimento com halteres"],
+    "0334": ["elevação lateral"],
+    "0310": ["elevação frontal"],
+    "0201": ["tríceps na polia", "tríceps pulley"],
+    "0060": ["tríceps testa"],
+
+    "0027": ["remada curvada"],
+    "0064": ["remada unilateral"],
+    "0198": ["puxada na polia", "puxada alta"],
+    "0652": ["barra fixa", "elevação na barra"],
+    "1326": ["barra fixa supinada"],
+    "0380": ["crucifixo inverso"],
+    "0095": ["encolhimento de ombros"],
+    "0031": ["rosca direta"],
+    "0294": ["rosca com halteres"],
+    "0285": ["rosca alternada"],
+
+    "0472": ["elevação de pernas suspenso"],
+    "0175": ["abdominal na polia"]
+  }
+}
