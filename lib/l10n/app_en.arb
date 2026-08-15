@@ -1,0 +1,15 @@
+{
+  "@@locale": "en",
+  "appTitle": "Mesa",
+  "@appTitle": {
+    "description": "The application name, shown in the task switcher and app bars."
+  },
+  "homePlaceholderTitle": "Scaffold ready",
+  "@homePlaceholderTitle": {
+    "description": "Heading on the M0 placeholder home screen."
+  },
+  "homePlaceholderBody": "Riverpod, go_router and the theme are wired up. Session logging arrives in M4.",
+  "@homePlaceholderBody": {
+    "description": "Body text on the M0 placeholder home screen explaining what is and is not built yet."
+  }
+}
