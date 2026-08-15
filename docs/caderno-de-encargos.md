@@ -59,6 +59,11 @@ never issue an ID token. The Dart side needs no client id — the Gradle plugin
 turns the web client into a per-flavour string resource, so it stays
 flavour-correct automatically. This is a console action, not a code change.
 
+The **debug** keystore's SHA-1 is registered in both projects and Google
+Sign-In is confirmed working on device (M1, 2026-08-15). This covers debug and
+profile builds only. **A signed release build is signed by a different key, so
+its SHA-1 must be registered too — see the M7 warning in §10.**
+
 **Code generation — domain models are hand-written (decided M1).** The last
 stable `freezed` (3.2.5) pins `analyzer <11`, which cannot coexist with the
 `analyzer ^13` that `riverpod_generator` and `build_runner` require on Dart
@@ -501,6 +506,8 @@ Build in this order. Each milestone ends with a working app, a passing test suit
 | **M6** | History + analytics + charts + PRs | Charts render offline from cached data |
 | **M7** | Gyms + substitution + settings + export + App Check + signed release APK | Installable release build; substitution flow works end to end |
 
+**M7 warning — Google Sign-In will break in the signed release build** unless the release keystore's SHA-1 is registered in **both** Firebase projects and `google-services.json` re-downloaded per flavour. Only the debug keystore is registered (M1), and a release APK is signed by a different key, so Credential Manager will refuse to issue an ID token and sign-in will fail with a configuration error that says nothing about certificates. Do this at the same time as creating the release signing config — the two go together, and finding it afterwards costs an afternoon.
+
 ---
 
 ## 11. Testing
@@ -521,6 +528,8 @@ Build in this order. Each milestone ends with a working app, a passing test suit
 3. Is Portuguese UI needed at launch, or is English-with-ARB-ready sufficient?
 
 ### 12.1 Answered
+
+- **Google Sign-In signing keys** (M1, 2026-08-15) — the debug keystore's SHA-1 is registered in both Firebase projects and Google Sign-In works on device. **The release keystore's SHA-1 is not, and must be added at M7 or sign-in breaks in the signed build.** See §2 and the M7 warning in §10.
 
 - **Distribution and the media licence** (answered 2026-08-15) — the app is **not** going to the Play Store; it runs on the owner's own device. `CatalogConfig.mediaEnabled` is therefore a hardcoded `true` rather than a real flag, and M2 should not build configuration around it. §5.1 carries the standing caveat: distributing the app to anyone else makes the Gym visual licence live again, and the constant is what keeps turning media off a one-line change.
 - **Bodyweight tracking** (answered 2026-08-15) — **both**. `users/{uid}.bodyweight` holds the current value for load suggestions, and `users/{uid}/bodyweightLog/{entryId}` appends a dated entry whenever it changes, so a historical e1RM stays computed against the bodyweight in force at the time. Added to §4; consumed in §5.6 and §7.2; built in **M5**. This resolves the contradiction where §5.6 required a profile field that §4 did not define.
