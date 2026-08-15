@@ -14,8 +14,31 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    // Required for the per-flavor app_name resValue below; off by default in
+    // current AGP.
+    buildFeatures {
+        resValues = true
+    }
+
+    // Dev and prod point at separate Firebase projects (§2). The suffixed
+    // applicationId lets both builds sit on one device at the same time, and is
+    // what each Firebase Android app must be registered against.
+    flavorDimensions += "environment"
+
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            resValue("string", "app_name", "Mesa Dev")
+        }
+        create("prod") {
+            dimension = "environment"
+            resValue("string", "app_name", "Mesa")
+        }
+    }
+
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.tiagoamaro.mesa"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
