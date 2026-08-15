@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1040474623021",
+    "project_id": "mesa-dev-4970c",
+    "storage_bucket": "mesa-dev-4970c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1040474623021:android:f26f7660a2dc75ad403ca4",
+        "android_client_info": {
+          "package_name": "com.tiagoamaro.mesa.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1040474623021-h0t16gca9f2l6tjsv11fcjdp3jeqhdm9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZ51oZ8qahfVQW5nvmPtR_MqZY2F2SoT8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1040474623021-h0t16gca9f2l6tjsv11fcjdp3jeqhdm9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
