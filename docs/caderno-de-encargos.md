@@ -36,6 +36,7 @@ Three jobs the app must do well:
 |---|---|---|
 | App framework | **Flutter (stable channel), Dart 3** | Owner's existing skill; first-class Firebase support via FlutterFire; single codebase leaves iOS open. |
 | Backend | **Firebase** — Auth + Cloud Firestore | Chosen by owner. No server to run; offline persistence is built in, which matters in a basement gym with no signal. |
+| Build flavours | **Two Android flavours, one Firebase project each** — `dev` → applicationId `com.tiagoamaro.mesa.dev` (project `mesa-dev-4970c`); `prod` → applicationId `com.tiagoamaro.mesa` (project `mesa-prod-c0ac6`) | A Firebase Android app binds to exactly one applicationId, so two environments need two ids. The suffix also lets both builds sit on one device at once. Decided in M0. |
 | Auth | Firebase Auth — email/password **and** Google Sign-In | Google Sign-In is the low-friction path on Android; email/password is the fallback and makes testing easier. |
 | User data store | Cloud Firestore (not Realtime Database) | Better querying, structured documents, per-collection security rules, offline cache on mobile. |
 | Exercise catalogue | **Bundled as a local JSON asset**, not stored in Firestore | Static, read-heavy data. Slimmed to English and stripped of cardio it weighs 1.05 MB — instant search, fully offline, zero Firestore reads. See §5. |
@@ -43,6 +44,12 @@ Three jobs the app must do well:
 | State management | Riverpod (code-gen flavour) | Testable, no `BuildContext` coupling, good fit for stream-based Firestore data. |
 | Routing | `go_router` | Declarative, deep-link ready. |
 | Charts | `fl_chart` | Maintained, no platform channels. |
+
+Because flavours exist, `flutter run` and `flutter build` always require
+`--flavor dev` or `--flavor prod`; a bare `flutter build apk` fails as
+ambiguous. The flavour is read back at runtime from `appFlavor` to choose the
+Firebase project, and an unrecognised flavour throws rather than defaulting —
+a silent fallback would let a dev build write into the prod Firestore.
 
 ### 2.1 Assumptions to confirm
 

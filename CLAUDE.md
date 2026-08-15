@@ -4,7 +4,7 @@ A personal, single-user Android app for designing, running and tracking gym trai
 
 ## The contract
 
-`docs/caderno-de-encargos-gym-app.md` is the specification and the single source of truth.
+`docs/caderno-de-encargos.md` is the specification and the single source of truth.
 
 - Read the relevant sections of it before starting each milestone. Do not work from memory or from this file alone.
 - Implement the current milestone only (M0 → M7, in order). Never build ahead into a later milestone.
