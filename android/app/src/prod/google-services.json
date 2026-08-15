@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "779645380198-bb3j8s30tdrums3om2bau38f8ad0peie.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tiagoamaro.mesa",
+            "certificate_hash": "ba253091a7c895a61f76d1273cbf0c134f39501f"
+          }
+        },
+        {
           "client_id": "779645380198-vok7jjq2c9cl88keurkjnn9chahtg5fa.apps.googleusercontent.com",
           "client_type": 3
         }

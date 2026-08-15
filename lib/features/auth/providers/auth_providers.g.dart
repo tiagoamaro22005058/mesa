@@ -232,7 +232,7 @@ final class ProfileBootstrapProvider
   }
 }
 
-String _$profileBootstrapHash() => r'6594b8e62d1d96a98b0c5ccb134aa845f4ad8634';
+String _$profileBootstrapHash() => r'5220cf4945cf0ba0d3a483a83764bedeb22d1531';
 
 /// Drives the auth screens. Its [AsyncValue] carries the in-flight and failed
 /// states that the forms render.
@@ -265,7 +265,7 @@ final class AuthControllerProvider
   AuthController create() => AuthController();
 }
 
-String _$authControllerHash() => r'4dc4669c71b3d708d389513ca5c8eab3635637b0';
+String _$authControllerHash() => r'670965e31804c4b05c442bf1b76603e3646b5c2b';
 
 /// Drives the auth screens. Its [AsyncValue] carries the in-flight and failed
 /// states that the forms render.

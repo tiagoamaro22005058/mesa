@@ -33,7 +33,7 @@ A personal, single-user Android app for designing, running and tracking gym trai
 - `domain/` imports nothing from `data/` and nothing from Flutter. Pure Dart only.
 - Repository **interfaces** live in `domain/repositories/`; **implementations** live in `data/firestore/`.
 - `features/` never touch Firestore directly — they go through repository interfaces.
-- `domain/models/` holds freezed entities with no Firebase types.
+- `domain/models/` holds plain immutable entities with no Firebase types — hand-written `copyWith`/`==`/`hashCode`, no freezed. See §2 for why, and for the M3 trigger to revisit.
 - `domain/progression/` is a pure algorithm module (§7): no Firebase, no Flutter, unit-testable in isolation.
 
 ```

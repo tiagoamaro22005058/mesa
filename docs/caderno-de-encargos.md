@@ -59,11 +59,32 @@ never issue an ID token. The Dart side needs no client id — the Gradle plugin
 turns the web client into a per-flavour string resource, so it stays
 flavour-correct automatically. This is a console action, not a code change.
 
-**Code generation (M1).** The last stable `freezed` (3.2.5) pins `analyzer <11`
-and cannot coexist with `riverpod_generator`'s `analyzer ^13`. Since this
-document mandates both freezed entities (§9) and the code-gen flavour of
-Riverpod, `freezed: ^4.0.0-dev.3` is the only combination that satisfies it on
-Dart 3.13. Revisit when freezed 4.0.0 ships stable.
+**Code generation — domain models are hand-written (decided M1).** The last
+stable `freezed` (3.2.5) pins `analyzer <11`, which cannot coexist with the
+`analyzer ^13` that `riverpod_generator` and `build_runner` require on Dart
+3.13. The only versions of freezed that fit are `4.0.0-dev.*` prereleases.
+
+Rather than hold a prerelease, `domain/models/` uses plain immutable classes
+with hand-written `copyWith`, `==` and `hashCode`. Riverpod keeps its code-gen
+flavour on stable versions; freezed is dropped entirely.
+
+The reasoning, since the constraint alone does not settle it:
+
+- M1's model layer is two classes and thirteen fields. Codegen earns its keep on
+  volume and nesting, and there is neither yet.
+- A prerelease bought nothing in M1, because nothing in M1 needed what
+  distinguishes freezed 4 from freezed 3.
+- The decision is cheap to reverse. Re-adopting freezed deletes hand-written
+  code rather than reworking a design.
+
+**Revisit at M3.** The program builder introduces nested, heavily edited models
+(Program → Day → Block → SetScheme) where a `copyWith` that silently forgets a
+field is a real and invisible bug. If freezed 4.0.0 has shipped stable by then,
+adopt it for `domain/models/` and delete the hand-written boilerplate. The one
+thing hand-written `copyWith` must keep getting right in the meantime is
+distinguishing "argument omitted" from "set to null" — a plain nullable
+parameter cannot, and an optional field that cannot be cleared is the failure
+mode. `UserProfile.copyWith` uses a sentinel for this and is tested on it.
 
 ### 2.1 Assumptions to confirm
 
@@ -106,7 +127,11 @@ All user data is namespaced under `users/{uid}`. Nothing user-owned lives outsid
 ```
 users/{uid}
   { displayName, units: 'kg'|'lb', barWeight: 20, plateInventory: [25,20,15,10,5,2.5,1.25],
-    dumbbellIncrement: 2, activeProgramId, activeGymId, createdAt, updatedAt }
+    dumbbellIncrement: 2, bodyweight, bodyweightUpdatedAt,
+    activeProgramId, activeGymId, createdAt, updatedAt }
+
+users/{uid}/bodyweightLog/{entryId}
+  { weight, recordedAt }
 
 users/{uid}/gyms/{gymId}
   { name, equipment: ['barbell','dumbbell','cable','machine','smith','bands','bodyweight'], isDefault }
@@ -144,6 +169,7 @@ users/{uid}/customExercises/{exerciseId}
 
 ### 4.1 Rules
 
+- `bodyweight` is the **current** value, denormalised onto the profile so the ~36 `bodyweightPlusLoad` exercises (§5.6) cost no extra read mid-session. `bodyweightLog` is the dated history: a new entry is appended whenever the value changes, never overwritten. Both are needed — the profile answers "what do I load today", the log answers "what was I when I lifted that", which is what keeps a historical e1RM from silently rewriting itself when the user's weight changes (§7.2). Decided M1, built in **M5**; M1 stores neither. A subcollection rather than an array: entries accumulate for years and are read by date range, not as a unit.
 - Blocks are embedded in the Day document, not a subcollection — a day is read as a unit and never exceeds a few KB.
 - `setLogs` is a subcollection — sessions can hold 40+ sets and are written incrementally during a workout.
 - `exerciseStats` exists so history screens and "last time you did this" lookups cost **one document read**, not a query across every session. Written by the app on session completion; a Cloud Function is not required for v1.
@@ -194,7 +220,9 @@ Binding consequences for this build:
 
 - Media is **never bundled in the APK and never re-hosted** on Firebase Storage. It loads from the source repo's raw URLs on demand, cached via `cached_network_image`.
 - Each record's `attribution` string is displayed on the exercise detail screen.
-- All media access sits behind a `CatalogConfig.mediaEnabled` flag, built in M2, so a media-free build is one constant away. If this app ever reaches the Play Store — including an internal-testing track — either license the media or ship with the flag off.
+- `CatalogConfig.mediaEnabled` is a **hardcoded `true`**, not a build flag (decided M1 — see §12.1). The app is not distributed: it runs on the owner's own device, which is personal use rather than redistribution, so the flag has nothing to switch between. Build it as a plain constant in M2 and do not wire configuration to it.
+
+> **Before distributing this app, revisit this section.** The moment it reaches anyone else's device — the Play Store, an internal-testing track, a shared APK — the thumbnails and GIFs stop being personal use and Gym visual's terms apply. At that point either obtain a media licence or set `CatalogConfig.mediaEnabled` to `false` and ship without images. Keeping media access behind the single named constant is what makes that a one-line change; that is the constant's whole remaining purpose.
 
 ### 5.2 What gets bundled
 
@@ -263,7 +291,7 @@ The dataset says nothing about *how* an exercise is loaded, but the progression 
 |---|---|---|
 | `externalLoad` | barbell, dumbbell, cable, leverage machine, smith machine, kettlebell, ez barbell, olympic barbell, trap bar, band, sled machine, medicine ball | Weight entered directly. Standard e1RM (§7.1). |
 | `bodyweight` | body weight (325 records) | No weight field. Progress tracked as reps at a target RPE, not load. |
-| `bodyweightPlusLoad` | weighted (36 records) | Total load = profile bodyweight + added weight. Requires bodyweight on the user profile. |
+| `bodyweightPlusLoad` | weighted (36 records) | Total load = bodyweight + added weight. Uses `users/{uid}.bodyweight` for a new set, and the `bodyweightLog` entry current at the time for a historical one (§4). |
 | `assisted` | assisted (15 records) | The load **is assistance** — it moves inverse to progress. Less assistance is improvement. |
 
 The `assisted` inversion and the `bodyweightPlusLoad` bodyweight dependency are the two most likely sources of silently wrong numbers in this app. Both get explicit unit tests (§7.4).
@@ -392,7 +420,8 @@ suggested   = roundToIncrement(rawLoad, increment(exercise.equipment))
 
 - `increment` is 2×smallest plate for barbells (both sides), the dumbbell increment for dumbbells, and the stack increment for machines/cables (default 5 kg, per-exercise overridable).
 - Multiply prescribed **sets** by `weekRole.volumeMultiplier`, rounding down, minimum 1.
-- Only `externalLoad` exercises get a load suggestion from this formula. Per §5.6: `bodyweight` exercises suggest a **rep** target instead; `bodyweightPlusLoad` adds profile bodyweight before computing e1RM and subtracts it before suggesting the added plate; `assisted` exercises suggest *less assistance* and **invert** every improvement comparison.
+- Only `externalLoad` exercises get a load suggestion from this formula. Per §5.6: `bodyweight` exercises suggest a **rep** target instead; `bodyweightPlusLoad` adds bodyweight before computing e1RM and subtracts it before suggesting the added plate; `assisted` exercises suggest *less assistance* and **invert** every improvement comparison.
+- A `bodyweightPlusLoad` e1RM is computed against the bodyweight **in force when the set was performed**, read from the `bodyweightLog` (§4) — not the current value. Recomputing history against today's bodyweight would make every past lift move whenever the user's weight did, which is the §7.4 case that must not regress.
 - No history for an exercise → suggest nothing, prompt the user to enter their first working set, and mark the session as calibration.
 
 ### 7.3 Session-to-session adjustment
@@ -409,7 +438,7 @@ suggested   = roundToIncrement(rawLoad, increment(exercise.equipment))
 - RPE 10 at 1 rep → e1RM equals the weight lifted.
 - Reordering week roles changes the prescription for that week and nothing else.
 - An `assisted` exercise going from 30 kg to 25 kg of assistance registers as **progress**, not a regression.
-- A `bodyweightPlusLoad` exercise recomputes e1RM correctly when profile bodyweight changes.
+- A `bodyweightPlusLoad` exercise computes e1RM against the bodyweight recorded at the time of the set. Changing today's bodyweight moves the *next* suggestion and leaves every historical e1RM exactly where it was.
 - A `bodyweight` exercise never renders a weight field and never produces a load suggestion.
 
 ---
@@ -436,7 +465,7 @@ lib/
   app/                 // bootstrap, router, theme, DI
   core/                // failures, extensions, formatters, constants
   domain/
-    models/            // freezed entities — no Firebase types
+    models/            // plain immutable entities — no Firebase types (§2)
     progression/       // pure algorithm module (§7)
     repositories/      // abstract interfaces
   data/
@@ -489,12 +518,13 @@ Build in this order. Each milestone ends with a working app, a passing test suit
 
 1. Confirm assumptions **A2–A4** in §2.1 — in particular whether the Base → Deload → Intensification → Peak ordering is deliberate (kept as written).
 2. Should a program schedule to fixed weekdays, or simply advance to "next day in sequence" whenever a session starts? (Spec currently assumes the latter — more forgiving of missed days.)
-3. Is this app ever leaving your own device? If it reaches the Play Store, even on an internal-testing track, the Gym visual media licence question in §5.1 becomes real. Answering "no" now keeps `mediaEnabled` permanently true and saves nothing; answering "maybe" means building the flag properly in M2. **Needed before M2 starts.**
-4. Is Portuguese UI needed at launch, or is English-with-ARB-ready sufficient?
-5. Bodyweight is needed for the ~36 `bodyweightPlusLoad` exercises (§5.6). Track it as a single profile value, or as a dated series so historical e1RMs stay accurate? **Sharpened in M1:** §4's user document has no `bodyweight` field at all, so §4 and §5.6 currently contradict each other. M1 deliberately left it out rather than build ahead — Firestore is schemaless, so adding it later is a one-field change, not a migration. **Needed before M5.**
+3. Is Portuguese UI needed at launch, or is English-with-ARB-ready sufficient?
 
 ### 12.1 Answered
 
+- **Distribution and the media licence** (answered 2026-08-15) — the app is **not** going to the Play Store; it runs on the owner's own device. `CatalogConfig.mediaEnabled` is therefore a hardcoded `true` rather than a real flag, and M2 should not build configuration around it. §5.1 carries the standing caveat: distributing the app to anyone else makes the Gym visual licence live again, and the constant is what keeps turning media off a one-line change.
+- **Bodyweight tracking** (answered 2026-08-15) — **both**. `users/{uid}.bodyweight` holds the current value for load suggestions, and `users/{uid}/bodyweightLog/{entryId}` appends a dated entry whenever it changes, so a historical e1RM stays computed against the bodyweight in force at the time. Added to §4; consumed in §5.6 and §7.2; built in **M5**. This resolves the contradiction where §5.6 required a profile field that §4 did not define.
+- **Domain models and freezed** (M1) — dropped; plain immutable classes with hand-written `copyWith`. Reasoning and the M3 trigger to revisit are in §2.
 - **Rules tests in CI** (M1) — yes, as a separate job. See §11.
 - **Plate inventory editing** (M1) — a chip toggle over the standard kilogram set (25, 20, 15, 10, 5, 2.5, 1.25, 0.5). §4's default inventory is that set without the 0.5. Free-form plate weights would need this vocabulary widened first.
 - **"Last screen" on restart** (M1) — session-only for now. See §6 F1.

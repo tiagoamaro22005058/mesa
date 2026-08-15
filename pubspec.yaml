@@ -41,7 +41,7 @@ dependencies:
   firebase_auth: ^6.5.7
   cloud_firestore: ^6.8.0
   google_sign_in: ^7.2.0
-  freezed_annotation: ^3.1.0
+  collection: ^1.19.0
   intl: ^0.20.3
   flutter_localizations:
     sdk: flutter
@@ -49,11 +49,6 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  # The last stable freezed (3.2.5) pins analyzer <11, which cannot coexist with
-  # riverpod_generator's analyzer ^13. Since §2 mandates both freezed entities
-  # and the code-gen flavour of Riverpod, the prerelease is the only combination
-  # that satisfies the spec on Dart 3.13. Revisit when freezed 4.0.0 ships.
-  freezed: ^4.0.0-dev.3
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

@@ -35,6 +35,7 @@ const OTHER = 'user-b';
  */
 const PATHS = {
   profile: '',
+  bodyweightEntry: 'bodyweightLog/entry-1',
   gym: 'gyms/gym-1',
   program: 'programs/program-1',
   day: 'programs/program-1/days/day-1',

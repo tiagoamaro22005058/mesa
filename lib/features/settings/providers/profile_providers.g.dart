@@ -65,7 +65,7 @@ final class UserProfileProvider
   }
 }
 
-String _$userProfileHash() => r'b8e580ebc4f433a14de3d8fcc3265ae5370d943c';
+String _$userProfileHash() => r'73653483d3559af70037cec49ff028cce04fe8ee';
 
 /// Writes profile edits (F1).
 
@@ -95,7 +95,7 @@ final class ProfileControllerProvider
   ProfileController create() => ProfileController();
 }
 
-String _$profileControllerHash() => r'bc03a5b2255a65b5f5d8ff8ce702c2db5b6e623d';
+String _$profileControllerHash() => r'b8702553f495238c5c5b85e26e25bee6f7f495e3';
 
 /// Writes profile edits (F1).
 
