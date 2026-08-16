@@ -19,6 +19,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonCancel => 'Cancel';
 
   @override
+  String get commonDelete => 'Delete';
+
+  @override
+  String get commonRemove => 'Remove';
+
+  @override
+  String get commonDuplicate => 'Duplicate';
+
+  @override
   String get commonRetry => 'Try again';
 
   @override
@@ -119,6 +128,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get validationNumberPositive => 'Enter a number above zero';
+
+  @override
+  String get validationWholeNumberRequired => 'Enter a whole number';
+
+  @override
+  String get validationNumberNotNegative => 'Enter zero or more';
+
+  @override
+  String get validationRepRangeInverted =>
+      'The top of the range must not be below the bottom';
 
   @override
   String homeGreeting(String name) {
@@ -461,4 +480,335 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get equipmentOther => 'Other';
+
+  @override
+  String get homeProgramsAction => 'Programs';
+
+  @override
+  String get programsTitle => 'Programs';
+
+  @override
+  String get programsNewAction => 'New program';
+
+  @override
+  String get programsEmptyTitle => 'No programs yet';
+
+  @override
+  String get programsEmptyBody =>
+      'Build one, then start your sessions from it.';
+
+  @override
+  String get programsShowArchived => 'Show archived';
+
+  @override
+  String get programsArchivedHeading => 'Archived';
+
+  @override
+  String get programStatusDraft => 'Draft';
+
+  @override
+  String get programStatusActive => 'Active';
+
+  @override
+  String get programStatusArchived => 'Archived';
+
+  @override
+  String get programNewTitle => 'New program';
+
+  @override
+  String get programEditTitle => 'Edit program';
+
+  @override
+  String get programNameLabel => 'Name';
+
+  @override
+  String get programGoalLabel => 'Goal';
+
+  @override
+  String get programGoalHint =>
+      'Optional — hypertrophy, strength, whatever you are chasing';
+
+  @override
+  String get programDaysPerWeekLabel => 'Sessions per week';
+
+  @override
+  String get programDaysPerWeekHint =>
+      'How often you train. A Push/Pull/Legs split run twice over is three days and six sessions.';
+
+  @override
+  String get programSaved => 'Program saved';
+
+  @override
+  String get programNotFound => 'That program no longer exists.';
+
+  @override
+  String get programEditAction => 'Edit details';
+
+  @override
+  String get programActivate => 'Make active';
+
+  @override
+  String programActivated(String name) {
+    return '$name is now your active program';
+  }
+
+  @override
+  String programActivateReplaces(String name) {
+    return '$name will go back to draft.';
+  }
+
+  @override
+  String get programActivateTitle => 'Make this the active program?';
+
+  @override
+  String get programArchive => 'Archive';
+
+  @override
+  String get programArchiveTitle => 'Archive this program?';
+
+  @override
+  String programArchiveBody(String name) {
+    return '$name moves out of your programs list. Nothing you have logged against it is lost, and you can still open it from Show archived.';
+  }
+
+  @override
+  String programArchived(String name) {
+    return '$name archived';
+  }
+
+  @override
+  String programDuplicated(String name) {
+    return '$name created';
+  }
+
+  @override
+  String programCopyName(String name) {
+    return '$name (copy)';
+  }
+
+  @override
+  String get programDaysHeading => 'Days';
+
+  @override
+  String get programDaysHint => 'Drag to reorder. Sessions follow this order.';
+
+  @override
+  String get programAddDay => 'Add day';
+
+  @override
+  String programDayCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+      zero: 'No days',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String programBlockCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count exercises',
+      one: '1 exercise',
+      zero: 'No exercises',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get weekRolesTitle => 'Week roles';
+
+  @override
+  String get weekRolesAction => 'Week roles';
+
+  @override
+  String get weekRolesHint =>
+      'One pass through these is a mesocycle. Drag to reorder.';
+
+  @override
+  String get weekRolesEmptyTitle => 'No weeks yet';
+
+  @override
+  String get weekRolesEmptyBody =>
+      'Add at least one week so the program has something to prescribe.';
+
+  @override
+  String get weekRoleAdd => 'Add week';
+
+  @override
+  String get weekRoleSaved => 'Week roles saved';
+
+  @override
+  String weekRoleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count weeks',
+      one: '1 week',
+      zero: 'No weeks',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String weekRoleWeekNumber(int number) {
+    return 'Week $number';
+  }
+
+  @override
+  String get weekRoleRpeLabel => 'Target RPE';
+
+  @override
+  String get weekRoleVolumeLabel => 'Volume';
+
+  @override
+  String weekRoleSummary(String rpe, String volume) {
+    return 'RPE $rpe · $volume volume';
+  }
+
+  @override
+  String get weekRoleBase => 'Base';
+
+  @override
+  String get weekRoleIntensification => 'Intensification';
+
+  @override
+  String get weekRolePeak => 'Peak';
+
+  @override
+  String get weekRoleDeload => 'Deload';
+
+  @override
+  String get dayNewName => 'New day';
+
+  @override
+  String get dayNameLabel => 'Name';
+
+  @override
+  String get dayRename => 'Rename day';
+
+  @override
+  String get dayDeleteTitle => 'Delete this day?';
+
+  @override
+  String dayDeleteBody(String name) {
+    return '$name and its exercises will be removed from this program. This cannot be undone.';
+  }
+
+  @override
+  String get dayDeleted => 'Day deleted';
+
+  @override
+  String dayDuplicated(String name) {
+    return '$name created';
+  }
+
+  @override
+  String get dayEmptyTitle => 'No exercises yet';
+
+  @override
+  String get dayEmptyBody => 'Add the exercises you work through on this day.';
+
+  @override
+  String get dayBlocksHint =>
+      'Drag to reorder. This is the order you work through them.';
+
+  @override
+  String get dayAddBlock => 'Add exercise';
+
+  @override
+  String get dayNotFound => 'That day no longer exists.';
+
+  @override
+  String get blockNewTitle => 'Add exercise';
+
+  @override
+  String get blockEditTitle => 'Edit exercise';
+
+  @override
+  String get blockExerciseLabel => 'Exercise';
+
+  @override
+  String get blockChooseExercise => 'Choose an exercise';
+
+  @override
+  String get blockSchemeHeading => 'Set scheme';
+
+  @override
+  String get blockSetsLabel => 'Sets';
+
+  @override
+  String get blockRepMinLabel => 'Reps from';
+
+  @override
+  String get blockRepMaxLabel => 'to';
+
+  @override
+  String get blockRpeLabel => 'Target RPE';
+
+  @override
+  String get blockRpeHint =>
+      'The baseline for this exercise, before the week role is applied.';
+
+  @override
+  String get blockRestLabel => 'Rest (seconds)';
+
+  @override
+  String get blockNotesLabel => 'Notes';
+
+  @override
+  String get blockAlternativesHeading => 'Alternatives';
+
+  @override
+  String get blockAlternativesHint =>
+      'In your order of preference, for when the gym cannot supply this one.';
+
+  @override
+  String get blockAddAlternative => 'Add alternative';
+
+  @override
+  String get blockSaved => 'Exercise saved';
+
+  @override
+  String get blockDeleteTitle => 'Remove this exercise?';
+
+  @override
+  String blockDeleteBody(String name) {
+    return '$name will be removed from this day. This cannot be undone.';
+  }
+
+  @override
+  String get blockDeleted => 'Exercise removed';
+
+  @override
+  String blockSchemeSummary(int sets, int repMin, int repMax, String rpe) {
+    return '$sets × $repMin-$repMax @ RPE $rpe';
+  }
+
+  @override
+  String blockRestSummary(int seconds) {
+    return '${seconds}s rest';
+  }
+
+  @override
+  String blockAlternativeCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count alternatives',
+      one: '1 alternative',
+      zero: '',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get blockExerciseMissing => 'Exercise no longer available';
+
+  @override
+  String get exercisePickerTitle => 'Choose an exercise';
 }

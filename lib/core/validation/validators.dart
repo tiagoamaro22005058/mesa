@@ -49,4 +49,38 @@ abstract final class Validators {
     if (parsed <= 0) return l10n.validationNumberPositive;
     return null;
   }
+
+  /// A count: sets, reps, sessions per week. Whole and above zero.
+  static String? positiveInt(AppLocalizations l10n, String? value) {
+    final parsed = parseCount(value);
+    if (parsed == null) return l10n.validationWholeNumberRequired;
+    if (parsed <= 0) return l10n.validationNumberPositive;
+    return null;
+  }
+
+  /// Rest between sets, in seconds. Zero is allowed — a superset has no rest.
+  static String? restSeconds(AppLocalizations l10n, String? value) {
+    final parsed = parseCount(value);
+    if (parsed == null) return l10n.validationWholeNumberRequired;
+    if (parsed < 0) return l10n.validationNumberNotNegative;
+    return null;
+  }
+
+  /// The top of a rep range, checked against the bottom of it.
+  ///
+  /// Takes the other field's text the way [passwordConfirmation] does — a
+  /// `TextFormField.validator` only ever sees its own value, so the pair has to
+  /// be compared from one side. `repMin == repMax` is a fixed rep count and
+  /// perfectly valid; only an inverted range is rejected.
+  static String? repMax(AppLocalizations l10n, String? value, String? repMin) {
+    final invalid = positiveInt(l10n, value);
+    if (invalid != null) return invalid;
+
+    final min = parseCount(repMin);
+    final max = parseCount(value);
+    if (min != null && max != null && max < min) {
+      return l10n.validationRepRangeInverted;
+    }
+    return null;
+  }
 }

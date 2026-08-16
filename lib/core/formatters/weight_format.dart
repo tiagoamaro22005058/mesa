@@ -29,3 +29,19 @@ double? parseWeight(String? input) {
   if (normalised.isEmpty) return null;
   return double.tryParse(normalised);
 }
+
+/// Reads a count the user typed — sets, reps, rest seconds.
+///
+/// Built on [parseWeight] rather than beside it, so a comma is still accepted
+/// on the keyboards that offer one (§9.1 asks for one parser, extended where it
+/// falls short, not a second one). What it adds is rejecting a fraction: `3,5`
+/// is a weight but not a number of sets, and silently truncating it to 3 would
+/// prescribe something the user did not type.
+///
+/// Returns `null` for anything that is not a whole number, which is what makes
+/// it usable directly from a form validator.
+int? parseCount(String? input) {
+  final parsed = parseWeight(input);
+  if (parsed == null || parsed != parsed.roundToDouble()) return null;
+  return parsed.toInt();
+}

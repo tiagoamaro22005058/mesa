@@ -10,6 +10,12 @@ import 'package:mesa/features/catalog/presentation/catalog_screen.dart';
 import 'package:mesa/features/catalog/presentation/custom_exercise_form_screen.dart';
 import 'package:mesa/features/catalog/presentation/exercise_detail_screen.dart';
 import 'package:mesa/features/home/presentation/home_screen.dart';
+import 'package:mesa/features/programs/presentation/block_form_screen.dart';
+import 'package:mesa/features/programs/presentation/day_editor_screen.dart';
+import 'package:mesa/features/programs/presentation/program_detail_screen.dart';
+import 'package:mesa/features/programs/presentation/program_form_screen.dart';
+import 'package:mesa/features/programs/presentation/program_list_screen.dart';
+import 'package:mesa/features/programs/presentation/week_roles_screen.dart';
 import 'package:mesa/features/settings/presentation/profile_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -23,6 +29,14 @@ abstract final class Routes {
   static const exerciseDetail = 'exerciseDetail';
   static const customExerciseNew = 'customExerciseNew';
   static const customExerciseEdit = 'customExerciseEdit';
+  static const programs = 'programs';
+  static const programNew = 'programNew';
+  static const programDetail = 'programDetail';
+  static const programEdit = 'programEdit';
+  static const weekRoles = 'weekRoles';
+  static const dayEditor = 'dayEditor';
+  static const blockNew = 'blockNew';
+  static const blockEdit = 'blockEdit';
   static const signIn = 'signIn';
   static const signUp = 'signUp';
   static const passwordReset = 'passwordReset';
@@ -34,6 +48,7 @@ abstract final class Paths {
   static const home = '/';
   static const profile = '/profile';
   static const catalog = '/catalog';
+  static const programs = '/programs';
   static const signIn = '/sign-in';
   static const signUp = '/sign-up';
   static const passwordReset = '/reset-password';
@@ -112,6 +127,69 @@ GoRouter router(Ref ref) {
                     name: Routes.customExerciseEdit,
                     builder: (context, state) =>
                         CustomExerciseFormScreen(exerciseId: state.pathParameters['id']!),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          GoRoute(
+            path: 'programs',
+            name: Routes.programs,
+            builder: (context, state) => const ProgramListScreen(),
+            routes: [
+              // Before ':programId', so `/programs/new` is not read as a
+              // program whose id is "new".
+              GoRoute(
+                path: 'new',
+                name: Routes.programNew,
+                builder: (context, state) => const ProgramFormScreen(),
+              ),
+              GoRoute(
+                path: ':programId',
+                name: Routes.programDetail,
+                builder: (context, state) =>
+                    ProgramDetailScreen(programId: state.pathParameters['programId']!),
+                routes: [
+                  GoRoute(
+                    path: 'edit',
+                    name: Routes.programEdit,
+                    builder: (context, state) =>
+                        ProgramFormScreen(programId: state.pathParameters['programId']!),
+                  ),
+                  GoRoute(
+                    path: 'week-roles',
+                    name: Routes.weekRoles,
+                    builder: (context, state) =>
+                        WeekRolesScreen(programId: state.pathParameters['programId']!),
+                  ),
+                  GoRoute(
+                    path: 'days/:dayId',
+                    name: Routes.dayEditor,
+                    builder: (context, state) => DayEditorScreen(
+                      programId: state.pathParameters['programId']!,
+                      dayId: state.pathParameters['dayId']!,
+                    ),
+                    routes: [
+                      // Same ordering rule as `/catalog/new`: the literal
+                      // before the parameter.
+                      GoRoute(
+                        path: 'blocks/new',
+                        name: Routes.blockNew,
+                        builder: (context, state) => BlockFormScreen(
+                          programId: state.pathParameters['programId']!,
+                          dayId: state.pathParameters['dayId']!,
+                        ),
+                      ),
+                      GoRoute(
+                        path: 'blocks/:blockId',
+                        name: Routes.blockEdit,
+                        builder: (context, state) => BlockFormScreen(
+                          programId: state.pathParameters['programId']!,
+                          dayId: state.pathParameters['dayId']!,
+                          blockId: state.pathParameters['blockId']!,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

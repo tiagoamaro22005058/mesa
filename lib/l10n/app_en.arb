@@ -13,6 +13,18 @@
   "@commonCancel": {
     "description": "Label of the button that dismisses a form without saving."
   },
+  "commonDelete": "Delete",
+  "@commonDelete": {
+    "description": "Label of the button that confirms removing something."
+  },
+  "commonRemove": "Remove",
+  "@commonRemove": {
+    "description": "Label of the action that takes an item out of a list it belongs to."
+  },
+  "commonDuplicate": "Duplicate",
+  "@commonDuplicate": {
+    "description": "Label of the action that copies an item."
+  },
   "commonRetry": "Try again",
   "@commonRetry": {
     "description": "Label of the button that re-runs a failed action."
@@ -139,6 +151,18 @@
   "validationNumberPositive": "Enter a number above zero",
   "@validationNumberPositive": {
     "description": "Field validation message for a number that must be greater than zero."
+  },
+  "validationWholeNumberRequired": "Enter a whole number",
+  "@validationWholeNumberRequired": {
+    "description": "Field validation message for a count — sets, reps, seconds — that must not be a fraction."
+  },
+  "validationNumberNotNegative": "Enter zero or more",
+  "@validationNumberNotNegative": {
+    "description": "Field validation message for a number that may be zero but not negative, such as rest seconds."
+  },
+  "validationRepRangeInverted": "The top of the range must not be below the bottom",
+  "@validationRepRangeInverted": {
+    "description": "Field validation message when a block's maximum reps is lower than its minimum (F3)."
   },
 
   "homeGreeting": "Signed in as {name}",
@@ -498,5 +522,249 @@
   "equipmentAssisted": "Assisted",
   "@equipmentAssisted": { "description": "Equipment name." },
   "equipmentOther": "Other",
-  "@equipmentOther": { "description": "Equipment name for the long tail: balls, rollers, ropes (§5.4)." }
+  "@equipmentOther": { "description": "Equipment name for the long tail: balls, rollers, ropes (§5.4)." },
+
+  "homeProgramsAction": "Programs",
+  "@homeProgramsAction": {
+    "description": "Home screen action opening the program list (F3)."
+  },
+
+  "programsTitle": "Programs",
+  "@programsTitle": { "description": "Title of the program list screen (F3)." },
+  "programsNewAction": "New program",
+  "@programsNewAction": { "description": "Action that starts building a new program." },
+  "programsEmptyTitle": "No programs yet",
+  "@programsEmptyTitle": { "description": "Empty state title on the program list." },
+  "programsEmptyBody": "Build one, then start your sessions from it.",
+  "@programsEmptyBody": { "description": "Empty state body on the program list." },
+  "programsShowArchived": "Show archived",
+  "@programsShowArchived": { "description": "Toggle revealing archived programs in the list." },
+  "programsArchivedHeading": "Archived",
+  "@programsArchivedHeading": { "description": "Section heading above archived programs." },
+
+  "programStatusDraft": "Draft",
+  "@programStatusDraft": { "description": "Program status: built but not in use." },
+  "programStatusActive": "Active",
+  "@programStatusActive": { "description": "Program status: the one being trained right now." },
+  "programStatusArchived": "Archived",
+  "@programStatusArchived": { "description": "Program status: retired, kept for its history." },
+
+  "programNewTitle": "New program",
+  "@programNewTitle": { "description": "Title of the create-program form." },
+  "programEditTitle": "Edit program",
+  "@programEditTitle": { "description": "Title of the edit-program form." },
+  "programNameLabel": "Name",
+  "@programNameLabel": { "description": "Program name field label." },
+  "programGoalLabel": "Goal",
+  "@programGoalLabel": { "description": "Program goal field label." },
+  "programGoalHint": "Optional — hypertrophy, strength, whatever you are chasing",
+  "@programGoalHint": { "description": "Helper text under the program goal field. Free text; nothing computes against it." },
+  "programDaysPerWeekLabel": "Sessions per week",
+  "@programDaysPerWeekLabel": { "description": "Program daysPerWeek field label (§4)." },
+  "programDaysPerWeekHint": "How often you train. A Push/Pull/Legs split run twice over is three days and six sessions.",
+  "@programDaysPerWeekHint": { "description": "Helper text explaining that daysPerWeek is sessions, not the number of day templates (§4)." },
+  "programSaved": "Program saved",
+  "@programSaved": { "description": "Confirmation after saving a program." },
+  "programNotFound": "That program no longer exists.",
+  "@programNotFound": { "description": "Shown when a link points at a program that has been removed." },
+
+  "programEditAction": "Edit details",
+  "@programEditAction": { "description": "Action opening the program name/goal form from the detail screen." },
+  "programActivate": "Make active",
+  "@programActivate": { "description": "Action making this the one active program (F3)." },
+  "programActivated": "{name} is now your active program",
+  "@programActivated": {
+    "description": "Confirmation after activating a program.",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "programActivateReplaces": "{name} will go back to draft.",
+  "@programActivateReplaces": {
+    "description": "Warning in the activate dialog naming the program that will be displaced, since only one may be active.",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "programActivateTitle": "Make this the active program?",
+  "@programActivateTitle": { "description": "Title of the activation confirmation dialog." },
+  "programArchive": "Archive",
+  "@programArchive": { "description": "Action retiring a program (F3)." },
+  "programArchiveTitle": "Archive this program?",
+  "@programArchiveTitle": { "description": "Title of the archive confirmation dialog (NFR5)." },
+  "programArchiveBody": "{name} moves out of your programs list. Nothing you have logged against it is lost, and you can still open it from Show archived.",
+  "@programArchiveBody": {
+    "description": "Body of the archive confirmation dialog, making clear the action is not destructive.",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "programArchived": "{name} archived",
+  "@programArchived": {
+    "description": "Confirmation after archiving a program.",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "programDuplicated": "{name} created",
+  "@programDuplicated": {
+    "description": "Confirmation after duplicating a program.",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "programCopyName": "{name} (copy)",
+  "@programCopyName": {
+    "description": "Name given to a duplicated program or day.",
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "programDaysHeading": "Days",
+  "@programDaysHeading": { "description": "Section heading above a program's day templates." },
+  "programDaysHint": "Drag to reorder. Sessions follow this order.",
+  "@programDaysHint": { "description": "Helper text above the reorderable day list." },
+  "programAddDay": "Add day",
+  "@programAddDay": { "description": "Action appending a new day template to a program." },
+  "programDayCount": "{count, plural, =0{No days} =1{1 day} other{{count} days}}",
+  "@programDayCount": {
+    "description": "How many day templates a program holds.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "programBlockCount": "{count, plural, =0{No exercises} =1{1 exercise} other{{count} exercises}}",
+  "@programBlockCount": {
+    "description": "How many blocks a day holds.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "weekRolesTitle": "Week roles",
+  "@weekRolesTitle": { "description": "Title of the week-role editor (F3)." },
+  "weekRolesAction": "Week roles",
+  "@weekRolesAction": { "description": "Action opening the week-role editor from the program detail screen." },
+  "weekRolesHint": "One pass through these is a mesocycle. Drag to reorder.",
+  "@weekRolesHint": { "description": "Helper text above the reorderable week-role list (§3)." },
+  "weekRolesEmptyTitle": "No weeks yet",
+  "@weekRolesEmptyTitle": { "description": "Empty state title in the week-role editor." },
+  "weekRolesEmptyBody": "Add at least one week so the program has something to prescribe.",
+  "@weekRolesEmptyBody": { "description": "Empty state body in the week-role editor." },
+  "weekRoleAdd": "Add week",
+  "@weekRoleAdd": { "description": "Action appending a week role." },
+  "weekRoleSaved": "Week roles saved",
+  "@weekRoleSaved": { "description": "Confirmation after saving the week roles." },
+  "weekRoleCount": "{count, plural, =0{No weeks} =1{1 week} other{{count} weeks}}",
+  "@weekRoleCount": {
+    "description": "How many weeks are in a program's mesocycle.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "weekRoleWeekNumber": "Week {number}",
+  "@weekRoleWeekNumber": {
+    "description": "Position of a week in the mesocycle, counted from one. The position is the week's identity, not its role name, which may repeat.",
+    "placeholders": { "number": { "type": "int" } }
+  },
+  "weekRoleRpeLabel": "Target RPE",
+  "@weekRoleRpeLabel": { "description": "Week role RPE target field label (§7.2)." },
+  "weekRoleVolumeLabel": "Volume",
+  "@weekRoleVolumeLabel": { "description": "Week role volume multiplier field label (§7.2)." },
+  "weekRoleSummary": "RPE {rpe} · {volume} volume",
+  "@weekRoleSummary": {
+    "description": "One-line summary of a week role's targets.",
+    "placeholders": { "rpe": { "type": "String" }, "volume": { "type": "String" } }
+  },
+  "weekRoleBase": "Base",
+  "@weekRoleBase": { "description": "Week role name." },
+  "weekRoleIntensification": "Intensification",
+  "@weekRoleIntensification": { "description": "Week role name." },
+  "weekRolePeak": "Peak",
+  "@weekRolePeak": { "description": "Week role name." },
+  "weekRoleDeload": "Deload",
+  "@weekRoleDeload": { "description": "Week role name." },
+
+  "dayNewName": "New day",
+  "@dayNewName": { "description": "Default name given to a freshly added day template." },
+  "dayNameLabel": "Name",
+  "@dayNameLabel": { "description": "Day name field label." },
+  "dayRename": "Rename day",
+  "@dayRename": { "description": "Action opening the rename dialog for a day." },
+  "dayDeleteTitle": "Delete this day?",
+  "@dayDeleteTitle": { "description": "Title of the delete-day confirmation dialog (NFR5)." },
+  "dayDeleteBody": "{name} and its exercises will be removed from this program. This cannot be undone.",
+  "@dayDeleteBody": {
+    "description": "Body of the delete-day confirmation dialog.",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "dayDeleted": "Day deleted",
+  "@dayDeleted": { "description": "Confirmation after deleting a day." },
+  "dayDuplicated": "{name} created",
+  "@dayDuplicated": {
+    "description": "Confirmation after duplicating a day.",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "dayEmptyTitle": "No exercises yet",
+  "@dayEmptyTitle": { "description": "Empty state title in the day editor." },
+  "dayEmptyBody": "Add the exercises you work through on this day.",
+  "@dayEmptyBody": { "description": "Empty state body in the day editor." },
+  "dayBlocksHint": "Drag to reorder. This is the order you work through them.",
+  "@dayBlocksHint": { "description": "Helper text above the reorderable block list (F3)." },
+  "dayAddBlock": "Add exercise",
+  "@dayAddBlock": { "description": "Action adding a block to a day." },
+  "dayNotFound": "That day no longer exists.",
+  "@dayNotFound": { "description": "Shown when a link points at a day that has been removed." },
+
+  "blockNewTitle": "Add exercise",
+  "@blockNewTitle": { "description": "Title of the create-block form." },
+  "blockEditTitle": "Edit exercise",
+  "@blockEditTitle": { "description": "Title of the edit-block form." },
+  "blockExerciseLabel": "Exercise",
+  "@blockExerciseLabel": { "description": "Label above the chosen exercise in the block form." },
+  "blockChooseExercise": "Choose an exercise",
+  "@blockChooseExercise": { "description": "Prompt shown when a block has no exercise picked yet." },
+  "blockSchemeHeading": "Set scheme",
+  "@blockSchemeHeading": { "description": "Section heading above the sets/reps/RPE/rest fields (§3)." },
+  "blockSetsLabel": "Sets",
+  "@blockSetsLabel": { "description": "Set scheme field label." },
+  "blockRepMinLabel": "Reps from",
+  "@blockRepMinLabel": { "description": "Bottom of the rep range." },
+  "blockRepMaxLabel": "to",
+  "@blockRepMaxLabel": { "description": "Top of the rep range." },
+  "blockRpeLabel": "Target RPE",
+  "@blockRpeLabel": { "description": "Block RPE target field label." },
+  "blockRpeHint": "The baseline for this exercise, before the week role is applied.",
+  "@blockRpeHint": { "description": "Helper text distinguishing the block's RPE target from the week role's (§7.2)." },
+  "blockRestLabel": "Rest (seconds)",
+  "@blockRestLabel": { "description": "Block rest field label." },
+  "blockNotesLabel": "Notes",
+  "@blockNotesLabel": { "description": "Block free-text notes field label (F3)." },
+  "blockAlternativesHeading": "Alternatives",
+  "@blockAlternativesHeading": { "description": "Section heading above a block's substitute exercises (F3)." },
+  "blockAlternativesHint": "In your order of preference, for when the gym cannot supply this one.",
+  "@blockAlternativesHint": { "description": "Helper text above the alternatives list. §F7's computed ranking arrives in M7; this list always outranks it." },
+  "blockAddAlternative": "Add alternative",
+  "@blockAddAlternative": { "description": "Action adding a substitute exercise to a block." },
+  "blockSaved": "Exercise saved",
+  "@blockSaved": { "description": "Confirmation after saving a block." },
+  "blockDeleteTitle": "Remove this exercise?",
+  "@blockDeleteTitle": { "description": "Title of the remove-block confirmation dialog (NFR5)." },
+  "blockDeleteBody": "{name} will be removed from this day. This cannot be undone.",
+  "@blockDeleteBody": {
+    "description": "Body of the remove-block confirmation dialog.",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "blockDeleted": "Exercise removed",
+  "@blockDeleted": { "description": "Confirmation after removing a block." },
+  "blockSchemeSummary": "{sets} × {repMin}-{repMax} @ RPE {rpe}",
+  "@blockSchemeSummary": {
+    "description": "One-line summary of a block's prescription.",
+    "placeholders": {
+      "sets": { "type": "int" },
+      "repMin": { "type": "int" },
+      "repMax": { "type": "int" },
+      "rpe": { "type": "String" }
+    }
+  },
+  "blockRestSummary": "{seconds}s rest",
+  "@blockRestSummary": {
+    "description": "Rest interval shown alongside a block's scheme.",
+    "placeholders": { "seconds": { "type": "int" } }
+  },
+  "blockAlternativeCount": "{count, plural, =0{} =1{1 alternative} other{{count} alternatives}}",
+  "@blockAlternativeCount": {
+    "description": "How many substitutes a block carries.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "blockExerciseMissing": "Exercise no longer available",
+  "@blockExerciseMissing": {
+    "description": "Shown in place of a block's exercise name when the id resolves to nothing — a custom exercise the user deleted."
+  },
+
+  "exercisePickerTitle": "Choose an exercise",
+  "@exercisePickerTitle": { "description": "Title of the modal exercise picker used by the program builder." }
 }

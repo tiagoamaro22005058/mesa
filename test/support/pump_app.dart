@@ -6,6 +6,7 @@ import 'package:mesa/app/app.dart';
 import 'package:mesa/app/router.dart';
 import 'package:mesa/features/auth/providers/auth_providers.dart';
 import 'package:mesa/features/catalog/providers/catalog_providers.dart';
+import 'package:mesa/features/programs/providers/program_providers.dart';
 import 'package:mesa/l10n/app_localizations.dart';
 
 import 'fakes.dart';
@@ -26,6 +27,7 @@ Widget _scoped({
   required FakeUserProfileRepository profiles,
   FakeExerciseCatalog? catalog,
   FakeCustomExerciseRepository? customExercises,
+  FakeProgramRepository? programs,
 }) {
   return ProviderScope(
     overrides: [
@@ -34,6 +36,9 @@ Widget _scoped({
       exerciseCatalogProvider.overrideWithValue(catalog ?? FakeExerciseCatalog()),
       customExerciseRepositoryProvider.overrideWithValue(
         customExercises ?? FakeCustomExerciseRepository(),
+      ),
+      programRepositoryProvider.overrideWithValue(
+        programs ?? FakeProgramRepository(),
       ),
     ],
     child: _ResolvedAuth(child: child),
@@ -72,6 +77,7 @@ Future<void> pumpApp(
   required FakeUserProfileRepository profiles,
   FakeExerciseCatalog? catalog,
   FakeCustomExerciseRepository? customExercises,
+  FakeProgramRepository? programs,
   bool settle = true,
 }) async {
   await tester.pumpWidget(
@@ -80,6 +86,7 @@ Future<void> pumpApp(
       profiles: profiles,
       catalog: catalog,
       customExercises: customExercises,
+      programs: programs,
       child: const MesaApp(),
     ),
   );
@@ -106,6 +113,7 @@ Future<void> pumpRoutedScreen(
   required FakeUserProfileRepository profiles,
   FakeExerciseCatalog? catalog,
   FakeCustomExerciseRepository? customExercises,
+  FakeProgramRepository? programs,
 }) async {
   const stub = Scaffold(body: SizedBox.shrink());
   final router = GoRouter(
@@ -131,6 +139,44 @@ Future<void> pumpRoutedScreen(
           ),
         ],
       ),
+      GoRoute(
+        path: '/programs',
+        name: Routes.programs,
+        builder: (context, state) => stub,
+        routes: [
+          GoRoute(path: 'new', name: Routes.programNew, builder: (context, state) => stub),
+          GoRoute(
+            path: ':programId',
+            name: Routes.programDetail,
+            builder: (context, state) => stub,
+            routes: [
+              GoRoute(path: 'edit', name: Routes.programEdit, builder: (context, state) => stub),
+              GoRoute(
+                path: 'week-roles',
+                name: Routes.weekRoles,
+                builder: (context, state) => stub,
+              ),
+              GoRoute(
+                path: 'days/:dayId',
+                name: Routes.dayEditor,
+                builder: (context, state) => stub,
+                routes: [
+                  GoRoute(
+                    path: 'blocks/new',
+                    name: Routes.blockNew,
+                    builder: (context, state) => stub,
+                  ),
+                  GoRoute(
+                    path: 'blocks/:blockId',
+                    name: Routes.blockEdit,
+                    builder: (context, state) => stub,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
     ],
   );
   addTearDown(router.dispose);
@@ -141,6 +187,7 @@ Future<void> pumpRoutedScreen(
       profiles: profiles,
       catalog: catalog,
       customExercises: customExercises,
+      programs: programs,
       child: MaterialApp.router(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
@@ -160,6 +207,7 @@ Future<void> pumpScreen(
   required FakeUserProfileRepository profiles,
   FakeExerciseCatalog? catalog,
   FakeCustomExerciseRepository? customExercises,
+  FakeProgramRepository? programs,
 }) async {
   await tester.pumpWidget(
     _scoped(
@@ -167,6 +215,7 @@ Future<void> pumpScreen(
       profiles: profiles,
       catalog: catalog,
       customExercises: customExercises,
+      programs: programs,
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,

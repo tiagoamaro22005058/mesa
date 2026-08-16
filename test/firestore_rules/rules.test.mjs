@@ -19,7 +19,7 @@ import {
   assertSucceeds,
   initializeTestEnvironment,
 } from '@firebase/rules-unit-testing';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, writeBatch } from 'firebase/firestore';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -122,6 +122,46 @@ describe('an unauthenticated client', () => {
       );
     });
   }
+});
+
+// M3's activation writes three documents at once — the newly active program,
+// the one it displaces, and `users/{uid}.activeProgramId` — because §4 stores
+// the active program in two places and they must not drift. A batch is
+// evaluated per document, so the interesting case is one that spans two
+// accounts: it has to fail as a unit rather than partly land.
+describe('a batch spanning the profile and its programs', () => {
+  it('succeeds entirely within the owner\'s subtree', async () => {
+    const db = testEnv.authenticatedContext(OWNER).firestore();
+    const batch = writeBatch(db);
+
+    batch.set(doc(db, pathFor(OWNER, 'programs/program-1')), { status: 'active' });
+    batch.set(doc(db, pathFor(OWNER, 'programs/program-2')), { status: 'draft' });
+    batch.set(doc(db, pathFor(OWNER, '')), { activeProgramId: 'program-1' });
+
+    await assertSucceeds(batch.commit());
+  });
+
+  it('fails when one document in it belongs to another account', async () => {
+    const db = testEnv.authenticatedContext(OTHER).firestore();
+    const batch = writeBatch(db);
+
+    // The second account's own program is fine; the owner's profile is not.
+    batch.set(doc(db, pathFor(OTHER, 'programs/program-1')), { status: 'active' });
+    batch.set(doc(db, pathFor(OWNER, '')), { activeProgramId: 'program-1' });
+
+    await assertFails(batch.commit());
+  });
+
+  it('leaves the owner\'s profile untouched after that denial', async () => {
+    // Atomicity is the point: a partly-applied batch would have written the
+    // activeProgramId above into an account that did not authorise it.
+    const db = testEnv.authenticatedContext(OWNER).firestore();
+    const snapshot = await getDoc(doc(db, pathFor(OWNER, '')));
+
+    if (snapshot.data()?.activeProgramId !== 'program-1') {
+      throw new Error('expected the owner\'s own earlier batch to be the last write');
+    }
+  });
 });
 
 describe('outside the users subtree', () => {

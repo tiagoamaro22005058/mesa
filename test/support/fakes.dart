@@ -2,12 +2,17 @@ import 'dart:async';
 
 import 'package:mesa/core/failures/auth_failure.dart';
 import 'package:mesa/core/failures/catalog_failure.dart';
+import 'package:mesa/core/failures/firestore_failure.dart';
+import 'package:mesa/core/ids.dart';
 import 'package:mesa/domain/models/auth_user.dart';
+import 'package:mesa/domain/models/day.dart';
 import 'package:mesa/domain/models/exercise.dart';
+import 'package:mesa/domain/models/program.dart';
 import 'package:mesa/domain/models/user_profile.dart';
 import 'package:mesa/domain/repositories/auth_repository.dart';
 import 'package:mesa/domain/repositories/custom_exercise_repository.dart';
 import 'package:mesa/domain/repositories/exercise_catalog.dart';
+import 'package:mesa/domain/repositories/program_repository.dart';
 import 'package:mesa/domain/repositories/user_profile_repository.dart';
 
 /// In-memory [AuthRepository].
@@ -221,6 +226,200 @@ class FakeCustomExerciseRepository implements CustomExerciseRepository {
 
   Future<void> dispose() async {
     for (final controller in _controllers.values) {
+      await controller.close();
+    }
+  }
+}
+
+/// In-memory [ProgramRepository], keyed by uid so cross-account isolation can
+/// be asserted here the way the rules tests assert it.
+///
+/// Give it the [FakeUserProfileRepository] the test is using to reproduce
+/// [activate]'s batch: §4 stores the active program on the program document
+/// *and* on the profile, and a fake that only wrote one of them would let a
+/// test pass while the real invariant was broken.
+class FakeProgramRepository implements ProgramRepository {
+  FakeProgramRepository({this.profiles});
+
+  final FakeUserProfileRepository? profiles;
+
+  final Map<String, List<Program>> programs = {};
+
+  /// Keyed by `'$uid/$programId'`.
+  final Map<String, List<Day>> days = {};
+
+  final Map<String, StreamController<List<Program>>> _programControllers = {};
+  final Map<String, StreamController<List<Day>>> _dayControllers = {};
+
+  StreamController<List<Program>> _programControllerFor(String uid) =>
+      _programControllers.putIfAbsent(uid, StreamController<List<Program>>.broadcast);
+
+  StreamController<List<Day>> _dayControllerFor(String key) =>
+      _dayControllers.putIfAbsent(key, StreamController<List<Day>>.broadcast);
+
+  String _key(String uid, String programId) => '$uid/$programId';
+
+  List<Program> _sortedPrograms(String uid) {
+    final owned = [...?programs[uid]]
+      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    return owned;
+  }
+
+  List<Day> _sortedDays(String uid, String programId) {
+    final owned = [...?days[_key(uid, programId)]]
+      ..sort((a, b) => a.order.compareTo(b.order));
+    return owned;
+  }
+
+  /// Replays what is stored before following the controller — a broadcast
+  /// stream alone would drop everything written before the subscription.
+  @override
+  Stream<List<Program>> watchPrograms(String uid) async* {
+    yield _sortedPrograms(uid);
+    yield* _programControllerFor(uid).stream;
+  }
+
+  @override
+  Stream<List<Day>> watchDays(String uid, String programId) async* {
+    yield _sortedDays(uid, programId);
+    yield* _dayControllerFor(_key(uid, programId)).stream;
+  }
+
+  @override
+  Future<void> saveProgram(String uid, Program program) async {
+    final owned = [...?programs[uid]]..removeWhere((p) => p.id == program.id);
+    owned.add(program);
+    programs[uid] = owned;
+    _emitPrograms(uid);
+  }
+
+  @override
+  Future<void> saveDay(String uid, String programId, Day day) async {
+    final key = _key(uid, programId);
+    final owned = [...?days[key]]..removeWhere((d) => d.id == day.id);
+    owned.add(day);
+    days[key] = owned;
+    _emitDays(uid, programId);
+  }
+
+  @override
+  Future<void> deleteDay(String uid, String programId, String dayId) async {
+    final key = _key(uid, programId);
+    days[key] = [...?days[key]]..removeWhere((d) => d.id == dayId);
+    _emitDays(uid, programId);
+  }
+
+  @override
+  Future<void> reorderDays(String uid, String programId, List<Day> ordered) async {
+    final key = _key(uid, programId);
+    days[key] = [
+      for (final (index, day) in ordered.indexed) day.copyWith(order: index),
+    ];
+    _emitDays(uid, programId);
+  }
+
+  @override
+  Future<String> duplicateProgram(
+    String uid,
+    String programId, {
+    required String name,
+  }) async {
+    final source = [...?programs[uid]].where((p) => p.id == programId).firstOrNull;
+    if (source == null) {
+      throw const FirestoreFailure(FirestoreFailureKind.notFound);
+    }
+
+    final now = DateTime.now().toUtc();
+    final copyId = newId('program');
+    await saveProgram(
+      uid,
+      source.copyWith(
+        id: copyId,
+        name: name,
+        status: ProgramStatus.draft,
+        createdAt: now,
+        updatedAt: now,
+      ),
+    );
+
+    for (final day in _sortedDays(uid, programId)) {
+      await saveDay(uid, copyId, _withFreshIds(day));
+    }
+
+    return copyId;
+  }
+
+  @override
+  Future<Day> duplicateDay(
+    String uid,
+    String programId,
+    Day day, {
+    required String name,
+  }) async {
+    final copy = _withFreshIds(day).copyWith(name: name);
+    await saveDay(uid, programId, copy);
+    return copy;
+  }
+
+  @override
+  Future<void> archive(String uid, Program program) async {
+    await saveProgram(
+      uid,
+      program.copyWith(
+        status: ProgramStatus.archived,
+        updatedAt: DateTime.now().toUtc(),
+      ),
+    );
+
+    final profile = profiles?.profiles[uid];
+    if (program.isActive && profile != null) {
+      await profiles!.save(uid, profile.copyWith(activeProgramId: null));
+    }
+  }
+
+  @override
+  Future<void> activate(
+    String uid, {
+    required String programId,
+    String? demote,
+  }) async {
+    final now = DateTime.now().toUtc();
+    final owned = [
+      for (final program in [...?programs[uid]])
+        if (program.id == programId)
+          program.copyWith(status: ProgramStatus.active, updatedAt: now)
+        else if (program.id == demote)
+          program.copyWith(status: ProgramStatus.draft, updatedAt: now)
+        else
+          program,
+    ];
+    programs[uid] = owned;
+    _emitPrograms(uid);
+
+    final profile = profiles?.profiles[uid];
+    if (profile != null) {
+      await profiles!.save(uid, profile.copyWith(activeProgramId: programId));
+    }
+  }
+
+  Day _withFreshIds(Day day) => day.copyWith(
+    id: newId('day'),
+    blocks: [
+      for (final block in day.blocks) block.copyWith(blockId: newId('block')),
+    ],
+  );
+
+  void _emitPrograms(String uid) =>
+      _programControllerFor(uid).add(_sortedPrograms(uid));
+
+  void _emitDays(String uid, String programId) =>
+      _dayControllerFor(_key(uid, programId)).add(_sortedDays(uid, programId));
+
+  Future<void> dispose() async {
+    for (final controller in _programControllers.values) {
+      await controller.close();
+    }
+    for (final controller in _dayControllers.values) {
       await controller.close();
     }
   }

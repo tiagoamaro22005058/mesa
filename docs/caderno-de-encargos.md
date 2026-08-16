@@ -91,6 +91,28 @@ distinguishing "argument omitted" from "set to null" — a plain nullable
 parameter cannot, and an optional field that cannot be cleared is the failure
 mode. `UserProfile.copyWith` uses a sentinel for this and is tested on it.
 
+**Revisited at M3 (2026-08-16) — the decision stands, and now has a guard.**
+Checked against pub.dev on the day: freezed's latest **stable** is still
+**3.2.5**, pinning `analyzer >=9.0.0 <11.0.0`; 4.0.0 has not shipped, sitting at
+`4.0.0-dev.3`. This repo resolves **analyzer 13.3.0** through
+`riverpod_generator` 4.0.8, `build_runner` 2.16.0 and `source_gen` 4.2.4. The
+trigger condition is not met and M1's constraint is unchanged, so the models
+stay hand-written. Re-check when freezed 4.0.0 ships stable; nothing else is
+gated on it.
+
+What did change is that the hazard the trigger existed to catch is now real —
+five model classes instead of two. `test/support/copy_with.dart` holds each
+model to covering every field: given an original and a table of *field → a copy
+differing only in that field*, it asserts each copy differs from the original,
+which fails if `copyWith` drops the field, if `==` does not compare it, or if
+`hashCode` does not mix it in. It was verified against a deliberately broken
+`copyWith` before being relied on.
+
+**Its limit, so nobody mistakes it for a proof:** it cannot catch a field added
+to a class later whose entry is never added to the table. Flutter has no
+reflection to enumerate fields with, so only codegen closes that. Adding a field
+to a model means adding a line to its table in the same edit.
+
 ### 2.1 Assumptions to confirm
 
 These are written into the spec but are **assumptions, not requirements**. Flag them if wrong.
@@ -116,7 +138,7 @@ Use these exact names in code. Ambiguity here produces the worst bugs.
 | **Block** | One exercise slot in a Day: exercise reference + set scheme + ordered alternatives. |
 | **SetScheme** | Prescription: sets, rep range, target RPE, rest seconds. |
 | **Mesocycle** | One pass through the Program's week roles (default 4 weeks). |
-| **WeekRole** | Base / Deload / Intensification / Peak. Carries `rpeTarget` and `volumeMultiplier`. |
+| **WeekRole** | One week of a Mesocycle: a role name — Base / Intensification / Peak / Deload — carrying `rpeTarget` and `volumeMultiplier`. Ordered list entries, not a keyed set: the order is §4's, roles are user-configurable (A2), and **a role may repeat**, so a week's identity is its position rather than its name. Modelled as `WeekRole` + `WeekRoleKind`, following the `AuthFailure`/`AuthFailureKind` pairing. *(Order corrected at M3 — this row previously read "Base / Deload / Intensification / Peak", which contradicted §4's sample data. §4 was right.)* |
 | **Session** | One actual workout instance, derived from a Day, stamped with mesocycle + week index. |
 | **SetLog** | One performed set: weight, reps, RPE, warmup flag, timestamp. |
 | **RIR** | Reps in reserve. `RIR = 10 − RPE`. |
@@ -177,7 +199,10 @@ users/{uid}/customExercises/{exerciseId}
 
 - `bodyweight` is the **current** value, denormalised onto the profile so the ~36 `bodyweightPlusLoad` exercises (§5.6) cost no extra read mid-session. `bodyweightLog` is the dated history: a new entry is appended whenever the value changes, never overwritten. Both are needed — the profile answers "what do I load today", the log answers "what was I when I lifted that", which is what keeps a historical e1RM from silently rewriting itself when the user's weight changes (§7.2). Decided M1, built in **M5**; M1 stores neither. A subcollection rather than an array: entries accumulate for years and are read by date range, not as a unit.
 - `favouriteExerciseIds` holds the exercises starred in F2, catalogue and custom alike. Added in **M2**: F2 requires favourites and §4 originally defined nowhere for them to live. An array on the profile rather than a subcollection, because the document is already streamed for every other setting — favourites therefore cost no extra read and no extra listener (NFR2) — and the list will never exceed a few dozen ids. Deleting a custom exercise unstars it in the same action, so the favourites filter cannot show a row that resolves to nothing.
+- `daysPerWeek` is **training sessions per week, set by the user, and independent of the number of Day templates** (decided M3): a Push/Pull/Legs split run twice over is three days and `daysPerWeek` 6. **Nothing in M3 reads it** — it is stored for M4's scheduling, so nothing should assume it is already load-bearing.
 - Blocks are embedded in the Day document, not a subcollection — a day is read as a unit and never exceeds a few KB.
+- A block's `order` is **written but never read back as the source of truth** (M3). The document shape above is unchanged — `order` is still stored, so a day document is readable without the app — but `Block` carries no `order` field: position in the `blocks` array is the order. The converter sorts by the stored value on read and rewrites it from the array index on save. Keeping both and trusting neither is how the two silently disagree, and the one that renders would win. `Day.order` is a real field, by contrast: days are separate documents and nothing else expresses their sequence.
+- **The active program is stored twice** — `users/{uid}.activeProgramId` and the program's own `status: 'active'` — and F3 allows exactly one. Every write that changes either writes **both, in one `WriteBatch`**, together with the program being displaced: activating (three documents) and archiving the active program (two). A batch applies to the local cache atomically and syncs later, so this holds offline (NFR1). This is the one place a repository writes outside its own collection; splitting it to keep the boundary tidy would destroy the atomicity that is the point. Added M3.
 - `setLogs` is a subcollection — sessions can hold 40+ sets and are written incrementally during a workout.
 - `exerciseStats` exists so history screens and "last time you did this" lookups cost **one document read**, not a query across every session. Written by the app on session completion; a Cloud Function is not required for v1.
 - Denormalised `exerciseName` on SetLog keeps history readable if a custom exercise is later deleted.
@@ -381,6 +406,8 @@ Each feature lists acceptance criteria. A milestone is done when its criteria pa
 
 **Reading of "the last screen" (M1).** M1 has two authenticated screens, so there is nothing meaningful to restore: it proves the *session* survives a restart and the app lands authenticated, with no sign-in flash on cold start. Genuine last-route restoration is revisited in M3/M4, once a route tree exists that makes it worth persisting.
 
+**Revisited at M3 — deferred to M4, deliberately.** M3 built the route tree, so the trigger fired. It is still not worth building: every program-builder screen is within two taps of home and holds no transient state, so restoring one saves a tap and risks dropping the user into a program they had finished with. F4's `in_progress` session resume is the case that genuinely needs persistence — it restores *work*, not a location — and building the mechanism now would mean building it against the wrong requirement. F3's own acceptance ("survives app restart") is about the data, which Firestore's cache already covers.
+
 ### F2 — Exercise catalogue
 
 - Browse and search the bundled catalogue: fuzzy search across name + aliases, sub-100 ms across all 1,295 entries.
@@ -415,6 +442,10 @@ Building either in M2 would mean building against a collection nothing writes. A
 - Exactly one program may be `active` at a time.
 
 **Acceptance:** a full Legs/Push/Pull program with 6–8 blocks per day can be built in under five minutes, and survives app restart.
+
+**Scope split (M3).** Everything above ships in M3 **except the pre-suggested alternatives**, which are deliberately absent rather than unfinished. F3 says the app pre-suggests them "(§F7)", but §F7 ranks by five inputs and two of them do not exist yet: there is no `Gym` model until **M7**, and no record of what the user has previously performed until **M4**. §F7 already states that the manual list always outranks the computed one, so M3 builds the half that outranks — pick, order and remove substitutes by hand — and the ranking lands in M7 with the gyms it depends on. Same shape as F2's M2 split, and checked the same way: the block form has no "suggested" section to quietly rot.
+
+**Deleting.** F3 names "archive a program" and no way to delete one, and M3 follows that exactly — a program is archived, never deleted, so its logged history stays resolvable. Days and blocks *can* be removed, which F3 does not spell out but a builder is unusable without: a mistyped day has to be removable. Both confirm first (NFR5).
 
 ### F4 — Session logging (the screen that matters most)
 
@@ -489,6 +520,18 @@ targetReps  = midpoint(setScheme.repMin, setScheme.repMax)
 rawLoad     = e1RM ÷ (1 + (targetReps + targetRIR) / 30)
 suggested   = roundToIncrement(rawLoad, increment(exercise.equipment))
 ```
+
+> **Unresolved, and it must be settled before M5 (raised M3).** That first line
+> uses `weekRole.rpeTarget` alone, which silently discards the `rpeTarget` §4
+> stores on every `setScheme`. Read literally, a Peak week would prescribe RPE
+> 9.5 for a lateral raise and a squat alike — flattening the gap between
+> compound and isolation work, which is not how the spreadsheet this app
+> replaces behaves. **The likely answer is that the week role applies as an
+> offset to the block's baseline rather than replacing it**, preserving the
+> relative intensity the block was written with. M3 stores both values and
+> resolves neither; the owner confirms which after seeing the real program in
+> the builder. Whatever is chosen, it belongs here, not in whichever screen
+> reaches the problem first. See §12.
 
 - `increment` is 2×smallest plate for barbells (both sides), the dumbbell increment for dumbbells, and the stack increment for machines/cables (default 5 kg, per-exercise overridable).
 - Multiply prescribed **sets** by `weekRole.volumeMultiplier`, rounding down, minimum 1.
@@ -645,11 +688,20 @@ questions M2 answered, several of which corrected §5.
 
 ## 12. Open questions
 
-1. Confirm assumptions **A2–A4** in §2.1 — in particular whether the Base → Deload → Intensification → Peak ordering is deliberate (kept as written).
-2. Should a program schedule to fixed weekdays, or simply advance to "next day in sequence" whenever a session starts? (Spec currently assumes the latter — more forgiving of missed days.)
+1. ~~Confirm assumptions **A2–A4** in §2.1 — in particular whether the Base → Deload → Intensification → Peak ordering is deliberate (kept as written).~~ **Ordering answered at M3**: §4's `base → intensification → peak → deload` is correct and §3 was corrected to match. A2's "user-configurable" half was never in doubt and is built. A3 and A4 hold as written.
+2. Should a program schedule to fixed weekdays, or simply advance to "next day in sequence" whenever a session starts? (Spec currently assumes the latter — more forgiving of missed days.) **M4's to answer**; `daysPerWeek` is stored and read by nothing until then.
 3. Is Portuguese UI needed at launch, or is English-with-ARB-ready sufficient?
+4. **How do `weekRole.rpeTarget` and `setScheme.rpeTarget` combine? — blocks M5.** §7.2 as written replaces the block's target with the week's, which would push isolation work to RPE 9.5 in a Peak week and lose the distinction the block was written with. Leading candidate: the week role applies as an **offset** to the block's baseline. Raised at M3, which stores both and resolves neither; the owner confirms after seeing the real program in the builder. §7.2 carries the note, and §7.4 will need a test case for whichever wins.
 
 ### 12.1 Answered
+
+- **Week roles run base → intensification → peak → deload** (M3, 2026-08-16) — §4's sample data was right and §3's glossary row was wrong; a deload in week two interrupts the build rather than recovering from it. Closes the ordering half of question 1. The roles stay user-configurable and **may repeat** — two base weeks is an ordinary mesocycle — so a week's identity is its position in the list, not its name. §3 corrected.
+- **`daysPerWeek` is sessions, not day templates** (M3) — user-set and independent, so a Push/Pull/Legs split run twice over is three days and `daysPerWeek` 6. Nothing in M3 reads it; it is stored for M4. §4 amended.
+- **A block's `order` is written but not modelled** (M3) — §4 keeps both an `order` field and an array, which is one fact twice. The wire format is unchanged; `Block` has no `order`, and the converter sorts by the stored value on read and rewrites it from the index on save. `Day.order` stays real, because days are separate documents. §4.1 amended.
+- **The active program is written in one batch** (M3) — §4 stores it on the profile *and* as the program's status, so activating (three documents) and archiving the active program (two) each commit as a single `WriteBatch`. Offline-safe, and the reason `ProgramRepository` is allowed to touch the profile document. §4.1 amended.
+- **F3's pre-suggested alternatives are M7 work** (M3) — §F7 ranks by five inputs, two of which (gym equipment, previously performed) do not exist until M7 and M4. M3 ships the manual ordered picker, which §F7 already says outranks the computed list. §6 F3 carries the split.
+- **Last-route restoration stays deferred, now to M4** (M3) — the route tree exists, but every builder screen is two taps from home and holds no transient state. F4's `in_progress` session resume is the case that genuinely needs persistence. §6 F1 carries the reasoning.
+- **freezed re-checked and still not adopted** (M3, 2026-08-16) — no stable 4.0.0 (`4.0.0-dev.3`), and stable 3.2.5 still pins `analyzer <11` against this repo's resolved 13.3.0. Models stay hand-written, and the hazard §2 named now has a mechanical guard in `test/support/copy_with.dart` — with its limit stated, since it is a guard rather than a proof. §2 carries the check.
 
 - **The deltoid heads cannot come from the data** (M2, 2026-08-15) — the dataset has one undifferentiated `delts` bucket, so the enum gained a generic `delts` and `front_delts`/`side_delts` are reachable only through the hand-maintained `delt_heads.json` override, which ships empty. Recorded in §5.4 so **M6 does not discover the limitation** while trying to answer "is my side delt volume enough": if that question matters, the override table is where the answer comes from, and it has to be filled in per exercise first.
 - **Rotator cuff counts as rear delts** (M2) — 10 mentions, all face pulls and external rotations. Filed under `rear_delts` rather than `other` so M6 does not undercount the area a PPL split is most likely to be short on. §5.4 carries the reasoning.
