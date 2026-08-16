@@ -204,7 +204,7 @@ users/{uid}/customExercises/{exerciseId}
 - A block's `order` is **written but never read back as the source of truth** (M3). The document shape above is unchanged — `order` is still stored, so a day document is readable without the app — but `Block` carries no `order` field: position in the `blocks` array is the order. The converter sorts by the stored value on read and rewrites it from the array index on save. Keeping both and trusting neither is how the two silently disagree, and the one that renders would win. `Day.order` is a real field, by contrast: days are separate documents and nothing else expresses their sequence.
 - **The active program is stored twice** — `users/{uid}.activeProgramId` and the program's own `status: 'active'` — and F3 allows exactly one. Every write that changes either writes **both, in one `WriteBatch`**, together with the program being displaced: activating (three documents) and archiving the active program (two). A batch applies to the local cache atomically and syncs later, so this holds offline (NFR1). This is the one place a repository writes outside its own collection; splitting it to keep the boundary tidy would destroy the atomicity that is the point. Added M3.
 - `setLogs` is a subcollection — sessions can hold 40+ sets and are written incrementally during a workout.
-- `exerciseStats` exists so history screens and "last time you did this" lookups cost **one document read**, not a query across every session. Written by the app on session completion; a Cloud Function is not required for v1.
+- `exerciseStats` exists so history screens and "last time you did this" lookups cost **one document read**, not a query across every session. Written by the app on session completion; a Cloud Function is not required for v1. It is also where §12's question 5 proposes seeding the spreadsheet's known starting loads, which would add a seeded marker to this document — settle that before M5 builds against the shape.
 - Denormalised `exerciseName` on SetLog keeps history readable if a custom exercise is later deleted.
 
 ### 4.2 Required composite indexes
@@ -692,6 +692,25 @@ questions M2 answered, several of which corrected §5.
 2. Should a program schedule to fixed weekdays, or simply advance to "next day in sequence" whenever a session starts? (Spec currently assumes the latter — more forgiving of missed days.) **M4's to answer**; `daysPerWeek` is stored and read by nothing until then.
 3. Is Portuguese UI needed at launch, or is English-with-ARB-ready sufficient?
 4. **How do `weekRole.rpeTarget` and `setScheme.rpeTarget` combine? — blocks M5.** §7.2 as written replaces the block's target with the week's, which would push isolation work to RPE 9.5 in a Peak week and lose the distinction the block was written with. Leading candidate: the week role applies as an **offset** to the block's baseline. Raised at M3, which stores both and resolves neither; the owner confirms after seeing the real program in the builder. §7.2 carries the note, and §7.4 will need a test case for whichever wins.
+
+5. **Where does a starting load live, so M5 does not begin uncalibrated? — blocks M5.** The spreadsheet this app replaces carries a **Weight (kg)** column: a known starting load per exercise (100 kg back squat, 39.5 kg lying leg curl). §4 has nowhere to put it, so as things stand every exercise reaches M5 with no history and §7.2's calibration path fires for all of them — prompting for numbers the owner already has. Raised at M3, 2026-08-16.
+
+   **Recommendation: seed `users/{uid}/exerciseStats/{exerciseId}`.** It is already where §7.2 looks, §4.1 already designates it app-written and denormalised, and it is keyed per exercise rather than per block — a squat is a squat across every program and day. A seeded value is then superseded by real sets through the mechanism that already exists, §7.1's "best of the last three exposures", with no special case.
+
+   **Rejected: a `startingLoad` on Block.** A starting load is a fact about the lifter, not about the plan. On Block it duplicates wherever an exercise appears twice and, worse, becomes a second source of truth M5 must arbitrate against logged history — after the first real session, does the suggestion come from the block's 100 kg or from the set just logged? That is the same two-places-for-one-fact trap as `activeProgramId` and the block `order`, both of which §4.1 now documents.
+
+   **Also rejected: synthesising a Session and its SetLogs.** It would reach `exerciseStats` by the normal path, but at the cost of putting a workout that never happened into M6's history, tonnage and adherence.
+
+   **What M5 needs the seed to look like.** The engine never consumes a load; it consumes an e1RM. §7.1 needs **load + reps + RPE**, so a bare weight is not enough — but the block carrying it supplies the rest, with `reps = midpoint(repMin, repMax)` and `rpe = setScheme.rpeTarget`, exactly as §7.2 derives its own target. 100 kg at 4×6-8 @8 is 7 reps at RIR 2, so e1RM 130 kg, and the owner still types only the weight.
+
+   **Two §4 additions it needs:**
+
+   - **A seeded marker on the stats document** (`seededAt`, or `source: 'seeded'`). §7.3 stalls on "two consecutive exposures with a lower e1RM", and a seed is not an exposure — counting it as one would fire a stall warning off an estimate. M6 also needs to tell an estimate apart from a lift.
+   - **Per-exercise load increments.** §7.2 already says the machine/cable stack increment is "default 5 kg, per-exercise overridable"; the Weight column is the evidence the override is required rather than optional. 39.5 kg cannot be built from a 20 kg bar and §4's plate inventory, so it is a stack with a finer increment, and a flat 5 kg default would round every suggestion for it wrong.
+
+   **Proposed shape: a calibration screen in M5**, listing the active program's exercises with one weight field each, seeded from the blocks M3 stores and writing `exerciseStats` directly. One screen, driven entirely off the program builder.
+
+   **Not built in M3.** `exerciseStats` has no writer until M4, and seeding a collection nothing else writes is exactly what M2 declined to do for F2's history and chart. Nothing is broken meanwhile: §7.2's no-history path already prompts for a first working set and marks the session as calibration.
 
 ### 12.1 Answered
 
