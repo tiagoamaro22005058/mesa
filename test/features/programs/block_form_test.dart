@@ -257,6 +257,158 @@ void main() {
     });
   });
 
+  // The four changes M3 made after the F3 five-minute criterion failed on
+  // device at 35 s a block. Measured cost per block: 11 taps and 5 field edits
+  // before, 5.9 and 2.6 after.
+  group('the fast add loop', () {
+    testWidgets('a new block inherits the previous block\'s scheme', (tester) async {
+      programs.days['uid-a/program-1'] = [
+        day(
+          'day-1',
+          'Push',
+          blocks: [
+            block(
+              'block-1',
+              '0025',
+              setScheme: const SetScheme(
+                sets: 3,
+                repMin: 8,
+                repMax: 12,
+                rpeTarget: 7,
+                restSec: 90,
+              ),
+            ),
+          ],
+        ),
+      ];
+
+      await pump(tester);
+
+      await pick(tester, 'Choose an exercise', 'Dumbbell Lateral Raise');
+      await save(tester);
+
+      final added = programs.days['uid-a/program-1']!.single.blocks.last;
+      expect(added.exerciseId, '0334');
+      expect(
+        added.setScheme,
+        const SetScheme(sets: 3, repMin: 8, repMax: 12, rpeTarget: 7, restSec: 90),
+      );
+    });
+
+    testWidgets('the first block of a day still starts from §4\'s example', (tester) async {
+      await pump(tester);
+
+      await pick(tester, 'Choose an exercise', 'Barbell Bench Press');
+      await save(tester);
+
+      expect(saved()!.setScheme, const SetScheme());
+    });
+
+    testWidgets('saving a new block reopens the picker instead of leaving', (tester) async {
+      await pump(tester);
+
+      await pick(tester, 'Choose an exercise', 'Barbell Bench Press');
+      await save(tester);
+
+      // The search field only exists inside the picker sheet.
+      expect(find.text('Search exercises'), findsOneWidget);
+    });
+
+    testWidgets('adds a run of blocks without returning to the day editor', (tester) async {
+      await pump(tester);
+
+      await pick(tester, 'Choose an exercise', 'Barbell Bench Press');
+      await save(tester);
+      // No 'Add exercise' tap between these: the picker is already open.
+      await tester.tap(find.text('Dumbbell Lateral Raise').last);
+      await tester.pumpAndSettle();
+      await save(tester);
+
+      final blocks = programs.days['uid-a/program-1']!.single.blocks;
+      expect(blocks.map((b) => b.exerciseId), ['0025', '0334']);
+      expect(blocks.map((b) => b.blockId).toSet(), hasLength(2));
+    });
+
+    testWidgets('editing an existing block still leaves when saved', (tester) async {
+      programs.days['uid-a/program-1'] = [
+        day('day-1', 'Push', blocks: [block('block-1', '0025')]),
+      ];
+
+      await pump(tester, blockId: 'block-1');
+      await save(tester);
+
+      expect(find.text('Search exercises'), findsNothing);
+    });
+
+    testWidgets('tapping a scheme field selects it, so an edit is a type', (tester) async {
+      // Without this, tapping a pre-filled field drops a caret after the digits
+      // and changing 150 to 90 costs three backspaces first.
+      await pump(tester);
+
+      final sets = find.widgetWithText(TextFormField, 'Sets');
+      await tester.tap(sets);
+      await tester.pumpAndSettle();
+
+      final editable = tester.widget<EditableText>(
+        find.descendant(of: sets, matching: find.byType(EditableText)),
+      );
+
+      expect(editable.controller.selection.baseOffset, 0);
+      expect(
+        editable.controller.selection.extentOffset,
+        editable.controller.text.length,
+      );
+      expect(editable.controller.text, isNotEmpty, reason: 'pre-filled');
+    });
+
+    testWidgets('raising the bottom of the rep range carries the top up', (tester) async {
+      // Carry-forward made this reachable: every new block inherits a narrow
+      // range, so widening it means typing a repMin above the inherited repMax.
+      // Rejecting that pointed the error at a field the user had not touched.
+      await pump(tester);
+
+      await pick(tester, 'Choose an exercise', 'Barbell Bench Press');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Reps from'), '12');
+      await tester.pumpAndSettle();
+
+      expect(find.widgetWithText(TextFormField, 'to'), findsOneWidget);
+      await save(tester);
+
+      expect(saved()!.setScheme.repMin, 12);
+      expect(saved()!.setScheme.repMax, 12);
+    });
+
+    testWidgets('the picker leads with favourites before anything is typed', (tester) async {
+      // The change that removes the typing: a program is built from the same
+      // twenty exercises, starred once in F2.
+      profiles.profiles['uid-a'] = profiles.profiles['uid-a']!.copyWith(
+        favouriteExerciseIds: ['0334'],
+      );
+
+      await pump(tester);
+
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Choose an exercise'));
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getTopLeft(find.text('Dumbbell Lateral Raise')).dy,
+        lessThan(tester.getTopLeft(find.text('Barbell Bench Press')).dy),
+      );
+    });
+
+    testWidgets('lowering the bottom leaves the top alone', (tester) async {
+      await pump(tester);
+
+      await pick(tester, 'Choose an exercise', 'Barbell Bench Press');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Reps from'), '3');
+      await tester.pumpAndSettle();
+      await save(tester);
+
+      expect(saved()!.setScheme.repMin, 3);
+      expect(saved()!.setScheme.repMax, 8, reason: '§4\'s example, untouched');
+    });
+  });
+
   group('editing', () {
     setUp(() {
       programs.days['uid-a/program-1'] = [

@@ -90,8 +90,14 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
             ),
             Expanded(
               child: switch (index) {
+                // Favourites lead the empty list, which is what turns adding a
+                // block into a tap instead of six keystrokes: a program is
+                // built from the same twenty exercises, starred once.
                 AsyncData(value: final found) => _Results(
-                  exercises: found.search(_query),
+                  exercises: found.search(
+                    _query,
+                    favouriteIds: ref.watch(favouriteExerciseIdsProvider),
+                  ),
                   needsIdSuffix: found.needsIdSuffix,
                   controller: scrollController,
                 ),

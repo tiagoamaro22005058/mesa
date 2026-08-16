@@ -109,7 +109,14 @@ class _FormState extends ConsumerState<_Form> {
   void initState() {
     super.initState();
     final existing = widget.existing;
-    final scheme = existing?.setScheme ?? const SetScheme();
+    // A new block starts from the previous block's prescription rather than
+    // §4's example (F3's five-minute criterion). Measured at M3: retyping the
+    // scheme was 6 of the 11 taps a block costs, the single largest cost in
+    // the flow. Adjacent exercises in a day rarely share a scheme outright,
+    // but they sit closer to each other than to a fixed default, so this
+    // reduces how many fields are edited rather than removing the step.
+    final scheme =
+        existing?.setScheme ?? widget.day.blocks.lastOrNull?.setScheme ?? const SetScheme();
 
     _sets = TextEditingController(text: '${scheme.sets}');
     _repMin = TextEditingController(text: '${scheme.repMin}');
@@ -186,9 +193,7 @@ class _FormState extends ConsumerState<_Form> {
                       label: l10n.blockRepMinLabel,
                       enabled: !busy,
                       validator: (value) => Validators.positiveInt(l10n, value),
-                      // Re-validates the top of the range, which may have been
-                      // fine until the bottom moved above it.
-                      onChanged: (_) => _formKey.currentState?.validate(),
+                      onChanged: _onRepMinChanged,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -263,6 +268,25 @@ class _FormState extends ConsumerState<_Form> {
         ),
       ),
     );
+  }
+
+  /// Carries the top of the rep range up when the bottom passes it.
+  ///
+  /// Carrying the previous block's scheme forward made this worth handling
+  /// rather than rejecting. Every new block now inherits a narrow range, so
+  /// widening 6-8 to 12-20 means typing a `repMin` that is momentarily above
+  /// the inherited `repMax` — which failed validation on save, pointed at the
+  /// field the user had not touched, and cost a second trip through the form.
+  /// Raising the top to match is the reading that matches the intent: nobody
+  /// typing 12 into the bottom of a range means to leave the top at 8.
+  void _onRepMinChanged(String value) {
+    final min = parseCount(value);
+    final max = parseCount(_repMax.text);
+
+    if (min != null && max != null && min > max) {
+      _repMax.text = '$min';
+    }
+    _formKey.currentState?.validate();
   }
 
   Future<void> _pickExercise() async {
@@ -355,8 +379,42 @@ class _FormState extends ConsumerState<_Form> {
         .saveBlock(widget.programId, widget.day, block);
     if (!mounted) return;
 
-    messenger.showSnackBar(SnackBar(content: Text(l10n.blockSaved)));
-    if (router.canPop()) router.pop();
+    // Editing one block is a single errand: confirm it and leave.
+    if (widget.existing != null) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.blockSaved)));
+      if (router.canPop()) router.pop();
+      return;
+    }
+
+    // Adding is a loop, so stay and offer the next exercise straight away
+    // rather than returning to the day editor to be told to add another
+    // (F3's five-minute criterion). Measured at M3: the round trip out and
+    // back in cost two taps and about 1.1 s of animation per block.
+    //
+    // No snackbar here — the picker opens over it immediately, and the day
+    // editor lists everything that landed once the loop ends.
+    setState(() {
+      _exerciseId = null;
+      _isCustom = false;
+      _alternativeExerciseIds = [];
+      _notes.clear();
+      // The scheme deliberately stays as typed: it is what the next block
+      // inherits.
+    });
+
+    final next = await ExercisePickerSheet.show(context);
+    if (!mounted) return;
+
+    // Dismissing the picker is how the user says they are done adding.
+    if (next == null) {
+      if (router.canPop()) router.pop();
+      return;
+    }
+
+    setState(() {
+      _exerciseId = next.id;
+      _isCustom = next.isCustom;
+    });
   }
 }
 
@@ -487,6 +545,14 @@ class _CountField extends StatelessWidget {
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
       validator: validator,
       onChanged: onChanged,
+      // Every one of these fields arrives pre-filled — from §4's example, or
+      // from the previous block. Without this, tapping one drops a caret after
+      // the digits and changing `12` to `8` costs two backspaces before the
+      // keystroke that matters. Selecting on focus makes an edit a type.
+      onTap: () => controller.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: controller.text.length,
+      ),
     );
   }
 }

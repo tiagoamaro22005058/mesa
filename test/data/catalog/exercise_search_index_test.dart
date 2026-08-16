@@ -31,6 +31,20 @@ void main() {
       expect(idsOf(results), ['0001', '0003', '0005', '0002', '0004']);
     });
 
+    test('an empty query puts favourites first, then alphabetical', () {
+      // What turns adding a block into a tap instead of six keystrokes: a
+      // program is built from the same twenty exercises, starred once (M3).
+      final results = index.search('', favouriteIds: {'0002', '0005'});
+
+      expect(idsOf(results), ['0005', '0002', '0001', '0003', '0004']);
+    });
+
+    test('a typed query outranks a star', () {
+      // Someone who typed a name wants that exercise whether or not they
+      // starred something else.
+      expect(idsOf(index.search('squat', favouriteIds: {'0002', '0005'})), ['0003']);
+    });
+
     test('finds an exercise by name', () {
       expect(idsOf(index.search('squat')), ['0003']);
     });

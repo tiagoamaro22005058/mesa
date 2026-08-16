@@ -26,9 +26,15 @@ class ExerciseSearchIndex {
 
   /// Exercises matching [query] and [filter], best match first.
   ///
-  /// An empty query is not an empty result: it is the whole catalogue in
-  /// alphabetical order, which is what makes the screen useful before anything
-  /// is typed.
+  /// An empty query is not an empty result: it is the whole catalogue, with the
+  /// user's favourites first and everything else alphabetical, which is what
+  /// makes the screen useful before anything is typed.
+  ///
+  /// **Favourites lead only when nothing has been typed.** Once there is a
+  /// query the tiers below decide, because someone who typed a name wants that
+  /// exercise whether or not they starred it. Measured at M3: on the program
+  /// builder's picker this is worth about six keystrokes a block, since the
+  /// exercises in a program are the same twenty the user stars once.
   List<Exercise> search(
     String query, {
     ExerciseFilter filter = ExerciseFilter.none,
@@ -39,7 +45,12 @@ class ExerciseSearchIndex {
 
     if (normalisedQuery.isEmpty) {
       final all = candidates.map((entry) => entry.exercise).toList();
-      all.sort((a, b) => a.name.compareTo(b.name));
+      all.sort((a, b) {
+        final aStarred = favouriteIds.contains(a.id);
+        final bStarred = favouriteIds.contains(b.id);
+        if (aStarred != bStarred) return aStarred ? -1 : 1;
+        return a.name.compareTo(b.name);
+      });
       return all;
     }
 
