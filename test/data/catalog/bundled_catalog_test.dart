@@ -124,6 +124,29 @@ void main() {
     expect(benchPress.aliases, contains('supino reto'));
   });
 
+  test('every exercise in the owner\'s program carries a Portuguese alias', () {
+    // §5.4 asks for the aliases to be seeded from the actual program, and M3
+    // did that from the program as built in the app. Pinned here because two of
+    // these are easy to lose: `1461` is a second record of the back squat and
+    // reads like a duplicate of `0043`, and `0586` reads like `0599`. Dropping
+    // either would silently cost Portuguese search a lift that is trained
+    // every week.
+    const programIds = [
+      '1461', '0032', '0585', '0586', '3582', '1375', '0472', // Legs & Glutes
+      '0025', '0426', '1283', '0178', '0246', '0201', '0979', // Push
+      '0150', '0293', '0193', '0861', '0762', '1658', '0011', // Pull
+    ];
+
+    for (final id in programIds) {
+      final exercise = catalogue.firstWhere((e) => e.id == id);
+      expect(
+        exercise.aliases,
+        isNotEmpty,
+        reason: '$id (${exercise.name}) lost its alias',
+      );
+    }
+  });
+
   test('the mis-encoded upstream names were repaired', () {
     // Four records arrive with `в°` where `°` belongs. Left alone they reach
     // the screen that way.
