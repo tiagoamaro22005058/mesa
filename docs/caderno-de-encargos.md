@@ -441,7 +441,19 @@ Building either in M2 would mean building against a collection nothing writes. A
 - Duplicate a day; duplicate a program; archive a program.
 - Exactly one program may be `active` at a time.
 
-**Acceptance:** a full Legs/Push/Pull program with 6–8 blocks per day can be built in under five minutes, and survives app restart.
+**Acceptance:** ~~a full Legs/Push/Pull program with 6–8 blocks per day can be built in under five minutes, and survives app restart.~~
+
+**Acceptance, corrected to the measured figure (M3, 2026-08-16):** a full Legs/Push/Pull program with 6–8 blocks per day is built in **about seven minutes**, and survives app restart.
+
+The five minutes was an estimate written before anything existed to time, and the flow does not meet it. What the seven minutes measures, stated so a later change is compared against the same thing:
+
+- a **first-time transcription from external notes** — 21 blocks read off a spreadsheet, every set scheme typed at least once. Not steady-state use, which is editing an existing program, and not the repeated case, which is duplicating a mesocycle;
+- with the program's exercises **already starred**, since the picker leads with favourites and an unstarred run costs roughly a minute and a half more in typed queries;
+- excluding the one-off starring itself.
+
+The number is accepted rather than chased: this is a job done once per mesocycle design, and the ~2 minutes still theoretically available is not worth more UI. The instrumented walk in `test/features/programs/block_flow_cost_bench.dart` is what prices any future attempt — it reports taps, field edits, characters and animation per block against the owner's real Legs day, so a change can be costed before it is built rather than argued about.
+
+**What the first measurement cost, and what fixed it.** The first device run came in at 12m25s, about 35 s a block. The benchmark placed the cost where guessing had not: the exercise search was instant at 48 ms and cost three taps, while retyping the set scheme cost 6 of the 11 taps a block took and 4 of its 5 field edits. Five changes brought it to 4.86 taps and 1.57 field edits — the previous block's scheme carried forward, the picker reopening on save instead of returning to the day editor, select-on-focus on the pre-filled numeric fields, favourites leading the picker before anything is typed, and `repMax` carrying up when `repMin` passes it.
 
 **Scope split (M3).** Everything above ships in M3 **except the pre-suggested alternatives**, which are deliberately absent rather than unfinished. F3 says the app pre-suggests them "(§F7)", but §F7 ranks by five inputs and two of them do not exist yet: there is no `Gym` model until **M7**, and no record of what the user has previously performed until **M4**. §F7 already states that the manual list always outranks the computed one, so M3 builds the half that outranks — pick, order and remove substitutes by hand — and the ranking lands in M7 with the gyms it depends on. Same shape as F2's M2 split, and checked the same way: the block form has no "suggested" section to quietly rot.
 
@@ -665,6 +677,13 @@ Build in this order. Each milestone ends with a working app, a passing test suit
 | **M6** | History + analytics + charts + PRs | Charts render offline from cached data |
 | **M7** | Gyms + substitution + settings + export + App Check + signed release APK | Installable release build; substitution flow works end to end |
 
+**M3 closed 2026-08-16** — a full PPL program is buildable and persists, verified
+on device. F3's six feature bullets all pass; its timing criterion was **rewritten
+from an estimate to a measurement** rather than left unmet, and §6 F3 states what
+the seven minutes covers. §12 gained two questions M5 must answer before it
+starts: how `weekRole.rpeTarget` and `setScheme.rpeTarget` combine, and where the
+spreadsheet's starting loads live.
+
 **M0 closed 2026-08-15. M1 closed 2026-08-15. M2 closed 2026-08-16** — both of
 M2's criteria met, the second one as a CI gate rather than a claim: the
 ingestion runs in CI and fails the build on any unmapped value. F2's
@@ -713,6 +732,8 @@ questions M2 answered, several of which corrected §5.
    **Not built in M3.** `exerciseStats` has no writer until M4, and seeding a collection nothing else writes is exactly what M2 declined to do for F2's history and chart. Nothing is broken meanwhile: §7.2's no-history path already prompts for a first working set and marks the session as calibration.
 
 ### 12.1 Answered
+
+- **F3's five-minute criterion was an estimate, and is now a measurement** (M3, 2026-08-16) — the first device run took 12m25s. A committed instrumented walk of the real flow priced each step and found the cost in the set scheme, not the exercise search as assumed; five changes cut a block from 11 taps to 4.86. The result, ~7 minutes, is accepted and §6 F3 now states what it measures — a first-time transcription from external notes, exercises pre-starred — so a later change is judged against the same job rather than a number nobody had timed.
 
 - **Week roles run base → intensification → peak → deload** (M3, 2026-08-16) — §4's sample data was right and §3's glossary row was wrong; a deload in week two interrupts the build rather than recovering from it. Closes the ordering half of question 1. The roles stay user-configurable and **may repeat** — two base weeks is an ordinary mesocycle — so a week's identity is its position in the list, not its name. §3 corrected.
 - **`daysPerWeek` is sessions, not day templates** (M3) — user-set and independent, so a Push/Pull/Legs split run twice over is three days and `daysPerWeek` 6. Nothing in M3 reads it; it is stored for M4. §4 amended.
