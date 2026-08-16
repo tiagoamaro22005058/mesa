@@ -391,6 +391,12 @@ Each feature lists acceptance criteria. A milestone is done when its criteria pa
 
 **Acceptance:** search returns results with the device in aeroplane mode.
 
+**Met on device 2026-08-16.** Sixteen checks in aeroplane mode, including
+deleting a favourited custom exercise — the case where the exercise vanishes
+from the merged catalogue while the favourite still points at it. Media falls
+back to a placeholder and never surfaces an error, which is the one part of F2
+that genuinely needs the network (NFR1).
+
 **Scope split (M2).** Everything above shipped in M2 **except the detail screen's personal history and e1RM chart**, which are deliberately absent rather than unfinished:
 
 - `exerciseStats` has no writer until session completion, which is **M4**.
@@ -615,6 +621,12 @@ Build in this order. Each milestone ends with a working app, a passing test suit
 | **M5** | Progression engine + suggestions + deload volume + stall detection | All §7.4 test cases pass; suggestions appear in-session |
 | **M6** | History + analytics + charts + PRs | Charts render offline from cached data |
 | **M7** | Gyms + substitution + settings + export + App Check + signed release APK | Installable release build; substitution flow works end to end |
+
+**M0 closed 2026-08-15. M1 closed 2026-08-15. M2 closed 2026-08-16** — both of
+M2's criteria met, the second one as a CI gate rather than a claim: the
+ingestion runs in CI and fails the build on any unmapped value. F2's
+aeroplane-mode acceptance passed on device. See §12.1 for the eight spec
+questions M2 answered, several of which corrected §5.
 
 **M7 warning — Google Sign-In will break in the signed release build** unless the release keystore's SHA-1 is registered in **both** Firebase projects and `google-services.json` re-downloaded per flavour. Only the debug keystore is registered (M1), and a release APK is signed by a different key, so Credential Manager will refuse to issue an ID token and sign-in will fail with a configuration error that says nothing about certificates. Do this at the same time as creating the release signing config — the two go together, and finding it afterwards costs an afternoon.
 
